@@ -87,10 +87,13 @@ def GetNovaCookies(orchestrator_connection: OrchestratorConnection):
             
             driver.quit()    
 
-            return out_verification_token, out_kmd_logon_web_session_handler, out_request_verification_token
+            #Post tokes to OpenOrchestrator:
+            orchestrator_connection.update_credential("Kmd_verification_token", "Verification_token", out_verification_token)
+            orchestrator_connection.update_credential("Kmd_logon_web_session_handler", "Logon_web_session_handler", out_kmd_logon_web_session_handler)
+            orchestrator_connection.update_credential("KMD_request_verification_token", "Request_verification_token", out_request_verification_token)
 
         except Exception as e:
             print(e)
             raise
 
-    return main()
+    main()
