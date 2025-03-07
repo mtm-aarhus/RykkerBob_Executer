@@ -12,7 +12,7 @@ from NovaLogin import GetNovaCookies
 import GetCaseInfoAndCheckCaseState
 import SendBomEmail
 import CheckIfEmailSent 
-
+import SendDigitalPost
 #   ---- Henter Assets ----
 orchestrator_connection = OrchestratorConnection("Henter Assets", os.getenv('OpenOrchestratorSQL'),os.getenv('OpenOrchestratorKey'), None)
 KMDNovaURL = orchestrator_connection.get_constant("KMDNovaURL").value
@@ -157,7 +157,7 @@ else:
         assigned_variables = switch.get(RykkerNummer)()  
         globals().update(assigned_variables)
 
-        # # ----- Run Send BomEmail -----
+        # ----- Run Send BomEmail -----
         # Arguments_SendBomEmail = {
         #     "in_Sagsnummer": Sagsnummer,
         #     "in_BomNumber": BomNumber,
@@ -189,8 +189,28 @@ else:
             
         }
         CheckIfEmailSent_Output_arguments = CheckIfEmailSent.invoke_CheckIfEmailSent(Arguments_CheckIfEmailSent,orchestrator_connection)
-        Text = CheckIfEmailSent_Output_arguments.get("out_DocumentSendt")
-        print(Text)
+        out_DocumentSendt = CheckIfEmailSent_Output_arguments.get("out_DocumentSendt")
+        print(out_DocumentSendt)
+
+        if out_DocumentSendt and (RykkerNummer == 2 or RykkerNummer == 3):
+            # ----- Run SendDigitalPost -----
+            Arguments_SendDigitalPost = {
+                "in_Afgørelsesdato": Afgørelsesdato,
+                "in_Beskrivelse": Description,
+                "in_Sagsnummer": Sagsnummer,
+                "in_caseworkerPersonId": caseworkerPersonId,
+                "in_Dato": Dato,
+                "in_NovaAPIURL": KMDNovaURL,
+                "in_RykkerNummer": RykkerNummer,
+                "in_Token": KMD_access_token
+            }
+            SendDigitalPost_Output_arguments = SendDigitalPost.invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection)
+            out_DigitaltPostSendt = SendDigitalPost_Output_arguments.get("out_DigitaltPostSendt")
+            print(out_DigitaltPostSendt)
+        
+        else:
+            print(f"Der udsendes ikke digital post da rykker nummer er: {RykkerNummer}")
+
 
     else: 
         print("Sagen er ikke tilknyttet BOM")

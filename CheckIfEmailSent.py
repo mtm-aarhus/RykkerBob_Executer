@@ -3,6 +3,7 @@ import uuid
 import json
 import requests
 from datetime import datetime
+from SendSMTPMail import send_email 
 
 def invoke_CheckIfEmailSent(Arguments_CheckIfEmailSent,orchestrator_connection: OrchestratorConnection): 
     #Initialize variables
@@ -44,7 +45,6 @@ def invoke_CheckIfEmailSent(Arguments_CheckIfEmailSent,orchestrator_connection: 
         response.raise_for_status()  # Raise an error for non-2xx responses
         data = response.json()
         print("Success:", response.status_code)
-        print(response.text)
     except Exception as e:
         raise Exception("Kunne ikke hente sagsinfo:", str(e))
     
@@ -125,9 +125,34 @@ def invoke_CheckIfEmailSent(Arguments_CheckIfEmailSent,orchestrator_connection: 
 
     else:
         #orchestrator_connection.log_info("Dokumentet er ikke blevet oploadet korrekt")
-        print("Dokumentet er ikke blevet oploadet korrekt")
+        print("Robotten fejlede... Mail sendes til udvikler")
         out_DocumentSendt = False
 
+        # Define email details
+        sender = "Rykkerbob<rpamtm001@aarhus.dk>" # Replace with actual sender
+        subject = "Robot fejlede i rykkerskrivelse"
+        body = f"""Kære Udvikler, <br><br>
+        Robotten fejlede. Følgende sagsnummer fik ikke sendt en mail korrekt: {Sagsnummer}<br><br>
+        Kontroller venligst at rykkeren blev udsendt korrekt.<br><br>
+        Med venlig hilsen<br><br>
+        Teknik og Miljø<br><br>
+        Digitalisering<br><br>
+        Aarhus Kommune.
+        """
+        smtp_server = "smtp.adm.aarhuskommune.dk"   # Replace with your SMTP server
+        smtp_port = 25                    # Replace with your SMTP port
+
+        # Call the send_email function
+        send_email(
+            receiver="Gujc@aarhus.dk",
+            sender=sender,
+            subject=subject,
+            body=body,
+            smtp_server=smtp_server,
+            smtp_port=smtp_port,
+            html_body=True
+        )
+
     return{
-        " out_DocumentSendt":  out_DocumentSendt
+        "out_DocumentSendt":  out_DocumentSendt
     }
