@@ -202,7 +202,8 @@ else:
                 "in_Dato": Dato,
                 "in_NovaAPIURL": KMDNovaURL,
                 "in_RykkerNummer": RykkerNummer,
-                "in_Token": KMD_access_token
+                "in_Token": KMD_access_token,
+                "in_BeskrivelseTilEjer": BeskrivelseTilEjer
             }
             SendDigitalPost_Output_arguments = SendDigitalPost.invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection)
             out_DigitaltPostSendt = SendDigitalPost_Output_arguments.get("out_DigitaltPostSendt")

@@ -6,11 +6,64 @@ from datetime import datetime
 from SendSMTPMail import send_email 
 import pyodbc  
 import pandas as pd
+import os
+from docx import Document
+import getpass
 
 def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: OrchestratorConnection): 
+    Out_NewDate = datetime.now().strftime("%d-%m-%Y")
+    def update_word_template(
+        EjerNavn,
+        EjerAdresse,
+        CaseTitle,
+        CaseAdress,
+        Out_NewDate,
+        CaseNumber,
+        input_filename
+        ):
+        # Map placeholders to actual values
+        replacements = {
+            "<<sagEjer1Navn>>": EjerNavn,
+            "<<sagEjer1Adresse>>": EjerAdresse,
+            "<<sagsNavn>>": CaseTitle,
+            "<<sagsAdresse>>": CaseAdress,
+            "klik her for at angive en dato.": Out_NewDate,
+            "«Sagsnummer»": CaseNumber,
+        }
+
+        # Load the document
+        doc = Document(input_filename)
+
+        # Replace placeholders in paragraphs
+        for para in doc.paragraphs:
+            for key, val in replacements.items():
+                if key in para.text:
+                    for run in para.runs:
+                        if key in run.text:
+                            run.text = run.text.replace(key, val)
+
+        # Replace placeholders in tables
+        for table in doc.tables:
+            for row in table.rows:
+                for cell in row.cells:
+                    for key, val in replacements.items():
+                        if key in cell.text:
+                            cell.text = cell.text.replace(key, val)
+
+        # Build save path
+        username = getpass.getuser()
+        save_path = os.path.join("C:\\Users", username, "Downloads", input_filename)
+
+        # Save the updated document
+        doc.save(save_path)
+        print(f"Document saved to: {save_path}")
+    
+    
+    
     #Initialize variables
     Afgørelsesdato = Arguments_SendDigitalPost.get("in_Afgørelsesdato")
     Beskrivelse = Arguments_SendDigitalPost.get("in_Beskrivelse")
+    BeskrivelseTilEjer = Arguments_SendDigitalPost.get("in_BeskrivelseTilEjer")
     Sagsnummer = Arguments_SendDigitalPost.get("in_Sagsnummer")
     caseworkerPersonId = Arguments_SendDigitalPost.get("in_caseworkerPersonId")
     Dato = Arguments_SendDigitalPost.get("in_Dato")
@@ -233,7 +286,126 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
                 html_body=True
             )
 
+            try:
+                TransactionID = str(uuid.uuid4())
+                Uuid= str(uuid.uuid4())
+                Aktivitetsnavn = "Nyt materiale"
+    
+                StartDato = datetime.now().strftime("%Y-%m-%dT%H:%M:%S+00:00")
 
+                url = f"{KMDNovaURL}/Task/Import?api-version=2.0-Case"
+
+                payload = {
+                    "common": {
+                        "transactionId": TransactionID,
+                        "uuid": Uuid
+                    },
+                    "caseUuid": CaseUuid,
+                    "title": Aktivitetsnavn,
+                    "description": f"{BeskrivelseTilEjer} - Aarhus Kommune er ejer",
+                    #"caseworkerPersonId": caseworkerPersonId,
+                    "caseworker": {
+                        "losIdentity": {
+                            "novaUnitId": "0c89d77b-c86f-460f-9eaf-d238e4f451ed",
+                            "administrativeUnitId": 70528,
+                            "fullName": "Plan og Byggeri",
+                            "userKey": "2GBYGSAG"
+                        }
+                    },
+                    "startDate": StartDato,
+                    "TaskTypeName": "Aktivitet",
+                    "statusCode": "S"
+                }
+                headers = {
+                    "Authorization": f"Bearer {Token}",
+                    "Content-Type": "application/json"
+                }
+
+                response = requests.post(url, json=payload, headers=headers)
+                print(f"API Response: {response.status_code}")
+
+            except Exception as api_error:
+                print(f"Error occurred during API call: {api_error}")
+    
+    if not EjerAdresse or EjerAdresse.strip() == "":
+        print("Der findes ingen adresse på ejeren. Derfor bliver der ikke udsendt digital post")
+
+        try:
+            TransactionID = str(uuid.uuid4())
+            Uuid= str(uuid.uuid4())
+            Aktivitetsnavn = "Nyt materiale"
+
+            StartDato = datetime.now().strftime("%Y-%m-%dT%H:%M:%S+00:00")
+
+            url = f"{KMDNovaURL}/Task/Import?api-version=2.0-Case"
+
+            payload = {
+                "common": {
+                    "transactionId": TransactionID,
+                    "uuid": Uuid
+                },
+                "caseUuid": CaseUuid,
+                "title": Aktivitetsnavn,
+                "description": f"{BeskrivelseTilEjer} - Ejer mangler adresse",
+                #"caseworkerPersonId": caseworkerPersonId,
+                "caseworker": {
+                    "losIdentity": {
+                        "novaUnitId": "0c89d77b-c86f-460f-9eaf-d238e4f451ed",
+                        "administrativeUnitId": 70528,
+                        "fullName": "Plan og Byggeri",
+                        "userKey": "2GBYGSAG"
+                    }
+                },
+                "startDate": StartDato,
+                "TaskTypeName": "Aktivitet",
+                "statusCode": "S"
+            }
+            headers = {
+                "Authorization": f"Bearer {Token}",
+                "Content-Type": "application/json"
+            }
+
+            response = requests.post(url, json=payload, headers=headers)
+            print(f"API Response: {response.status_code}")
+
+        except Exception as api_error:
+            print(f"Error occurred during API call: {api_error}")
+
+
+
+    else:
+        if IsCvrAarhusKommune == False: 
+            try: 
+                if RykkerNummer == 2: 
+                    print("Sender 2. rykker")
+                    update_word_template(
+                        EjerNavn,
+                        EjerAdresse,
+                        CaseTitle,
+                        CaseAddress,
+                        Out_NewDate,
+                        Sagsnummer,
+                        input_filename="1. Orientering til ejer vedr. rykker for paabegyndelse.docx"
+                    )
+
+                else: 
+                    if RykkerNummer == 3: 
+                        print("Sender 3. rykker")
+                        update_word_template(
+                            EjerNavn,
+                            EjerAdresse,
+                            CaseTitle,
+                            CaseAddress,
+                            Out_NewDate,
+                            Sagsnummer,
+                            input_filename="2. Orientering til ejer vedr. rykker for paabegyndelse.docx"
+                        )
+                    else: 
+                        raise ValueError("Det er hverken 2. eller 3. rykker som er blevet oprettet")
+                    
+            except: 
+                print("Sletter lokal fil")
     return {
-        "out_DigitaltPostSendt": out_DigitaltPostSendt
+        "out_DigitaltPostSendt": out_DigitaltPostSendt,
+        "Out_NewDate":Out_NewDate
     }
