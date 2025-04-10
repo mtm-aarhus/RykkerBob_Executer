@@ -21,7 +21,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 
 def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: OrchestratorConnection): 
-    KMDNovaLoginRykkerRobot = orchestrator_connection.get_credential("KMDNovaLoginRykkerRobot")
+    KMDNovaLoginRykkerRobot = orchestrator_connection.get_credential("KMDNovaRobotLogin")
     RobotUserName = KMDNovaLoginRykkerRobot.username
     RobotPassword = KMDNovaLoginRykkerRobot.password
 
@@ -110,7 +110,7 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
         print(f"✅ Document saved to: {save_path}")
             
     
-    out_DigitaltPostSendt = False
+    DocumentSendt = False
     AarhusKommuneCVR = "5513301128"
     IsCvrAarhusKommune = False
 
@@ -455,17 +455,17 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
                 fullName = "Robot SvcRpaMTM001"
                 racfId = "AZMTM01"
                 TransactionID = str(uuid.uuid4())
-                out_DocumentID = str(uuid.uuid4())
+                DocumentID = str(uuid.uuid4())
                 ID = str(uuid.uuid4())
                 if RykkerNummer == 2: 
-                    out_Title = "Orientering til ejer vedr. rykker for påbegyndelse"
+                    Title = "Orientering til ejer vedr. rykker for påbegyndelse"
                 else:
                     if RykkerNummer == 3: 
-                        out_Title = "2. Orientering til ejer vedr. rykker for påbegyndelse"
+                        Title = "2. Orientering til ejer vedr. rykker for påbegyndelse"
                     
                 try: # Poster dokument
 
-                    url = f"{KMDNovaURL}/Document/UploadFile/{TransactionID}/{out_DocumentID}?api-version=2.0-Case"
+                    url = f"{KMDNovaURL}/Document/UploadFile/{TransactionID}/{DocumentID}?api-version=2.0-Case"
 
                     headers = {
                         "Authorization": f"Bearer {Token}",
@@ -496,11 +496,11 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
                     payload = {
                         "common": {
                             "transactionId": ID,
-                            "uuid": out_DocumentID
+                            "uuid": DocumentID
                         },
                         "caseUuid": CaseUuid,
                         "documentType": "Udgående",
-                        "title": out_Title,
+                        "title": Title,
                         "approved": True,
                         "acceptReceived": True,
                         "AccessToDocuments": True,
@@ -591,7 +591,7 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
                 if title_str is None:
                     TitleMatches = False
                 else:
-                    TitleMatches = (title_str == out_Title)
+                    TitleMatches = (title_str == Title)
 
                 # Check approved
                 approved_value = str(item.get("approved"))
@@ -614,131 +614,184 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
             except: 
                 os.remove(file_path)
                 raise Exception("Dokumentet blev ikke uploaded korrekt - sletter lokal fil")
-
-            if DocumentSendt: 
-               try:
-                    # Setup ChromeDriver options
-                    print("Initializing Chrome Driver...")
-                    app_data_path = os.getenv("LOCALAPPDATA")
-                    chrome_user_data_path = os.path.join(app_data_path, "Google", "Chrome", "User Data")
-
-                    options = Options()
-                    #options.add_argument("--headless=new")
-                    options.add_argument(f"--user-data-dir={chrome_user_data_path}")
-                    options.add_argument("--window-size=1920,900")
-                    options.add_argument("--start-maximized")
-                    options.add_argument("force-device-scale-factor=0.5")
-                    options.add_argument("--disable-extensions")
-                    options.add_argument("--profile-directory=Default")
-                    options.add_argument("--remote-debugging-port=9222")
-                    options.add_argument('--remote-debugging-pipe')
-
-                    driver = webdriver.Chrome(options=options)
-                    wait = WebDriverWait(driver, 30)
-
-                    print("Creating WebDriver...")
-                    print("Navigating to URL...")
-                    driver.get("https://cap-wsswlbs-wm3q2021.kmd.dk/KMD.YH.KMDLogonWEB.NET/AspSson.aspx?KmdLogon_sApplCallback=https://cap-awswlbs-wm3q2021.kmd.dk/KMDNovaESDH/forside&KMDLogon_sProtocol=tcpip&KMDLogon_sApplPrefix=--&KMDLogon_sOrigin=ApplAsp&ExtraData=true")
-                    print("Maximizing window...")
-                    driver.maximize_window()
-
-                    # Log in
-                    print("Waiting for Username field...")
-                    wait.until(EC.visibility_of_element_located((By.NAME, "UserInfo.Username"))).send_keys(RobotUserName)
-                    print("Entered Username.")
-                    wait.until(EC.visibility_of_element_located((By.NAME, "UserInfo.Password"))).send_keys(RobotPassword)
-                    print("Entered Password.")
-                    wait.until(EC.element_to_be_clickable((By.ID, "logonBtn"))).click()
-                    print("Clicked Logon button.")
-
-                    # Navigate
-                    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.btn.dropdown-toggle.object-select"))).click()
-                    print("Opened dropdown.")
-                    wait.until(EC.element_to_be_clickable((By.XPATH, "//li/a[.//span[text()='Sag']]"))).click()
-                    print("Selected 'Sag'.")
-                    wait.until(EC.visibility_of_element_located((By.ID, "SearchObject"))).send_keys(Sagsnummer + Keys.ENTER)
-                    print("Entered Case Number.")
-
-                    text_to_find = "Orientering til ejer vedr. rykker for påbegyndelse"
-                    wait.until(EC.element_to_be_clickable((By.XPATH, f"//span[contains(text(), '{text_to_find}')]"))).click()
-                    print("Found and clicked target text.")
-
-                    # Compare dates
-                    input_date_string = NewDate
-                    date_matches = False
-
-                    time.sleep(8)
+            try:
+                if DocumentSendt: 
                     try:
-                        input_date = datetime.datetime.strptime(input_date_string, "%d-%m-%Y").date()
+                        # Setup ChromeDriver options
+                        print("Initializing Chrome Driver...")
+                        app_data_path = os.getenv("LOCALAPPDATA")
+                        chrome_user_data_path = os.path.join(app_data_path, "Google", "Chrome", "User Data")
 
-                        date_element = driver.find_element(By.XPATH, "//label[text()='Dato']/following-sibling::div[@class='no-wrap ng-binding']")
-                        found_date_string = date_element.text.strip()
-                        found_date = datetime.datetime.strptime(found_date_string, "%d-%m-%Y").date()
+                        options = Options()
+                        #options.add_argument("--headless=new")
+                        options.add_argument(f"--user-data-dir={chrome_user_data_path}")
+                        options.add_argument("--window-size=1920,900")
+                        options.add_argument("--start-maximized")
+                        options.add_argument("force-device-scale-factor=0.5")
+                        options.add_argument("--disable-extensions")
+                        options.add_argument("--profile-directory=Default")
+                        options.add_argument("--remote-debugging-port=9222")
+                        options.add_argument('--remote-debugging-pipe')
 
-                        if input_date == found_date:
-                            print("The dates match.")
-                            date_matches = True
-                    except Exception as ex:
-                        print("Error parsing date:", str(ex))
+                        driver = webdriver.Chrome(options=options)
+                        wait = WebDriverWait(driver, 60)
+
+                        print("Creating WebDriver...")
+                        print("Navigating to URL...")
+                        driver.get("https://cap-wsswlbs-wm3q2021.kmd.dk/KMD.YH.KMDLogonWEB.NET/AspSson.aspx?KmdLogon_sApplCallback=https://cap-awswlbs-wm3q2021.kmd.dk/KMDNovaESDH/forside&KMDLogon_sProtocol=tcpip&KMDLogon_sApplPrefix=--&KMDLogon_sOrigin=ApplAsp&ExtraData=true")
+                        print("Maximizing window...")
+                        driver.maximize_window()
+
+                        # Log in
+                        print("Waiting for Username field...")
+                        wait.until(EC.visibility_of_element_located((By.NAME, "UserInfo.Username"))).send_keys(RobotUserName)
+                        print("Entered Username.")
+                        wait.until(EC.visibility_of_element_located((By.NAME, "UserInfo.Password"))).send_keys(RobotPassword)
+                        print("Entered Password.")
+                        wait.until(EC.element_to_be_clickable((By.ID, "logonBtn"))).click()
+                        print("Clicked Logon button.")
+
+                        # Navigate
+                        wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.btn.dropdown-toggle.object-select"))).click()
+                        print("Opened dropdown.")
+                        wait.until(EC.element_to_be_clickable((By.XPATH, "//li/a[.//span[text()='Sag']]"))).click()
+                        print("Selected 'Sag'.")
+                        wait.until(EC.visibility_of_element_located((By.ID, "SearchObject"))).send_keys(Sagsnummer + Keys.ENTER)
+                        print("Entered Case Number.")
+                        
+                        text_to_find = "Orientering til ejer vedr. rykker for påbegyndelse"
+                        wait.until(EC.element_to_be_clickable((By.XPATH, f"//span[contains(text(), '{text_to_find}')]"))).click()
+                        print("Found and clicked target text.")
+
+                        # Compare dates
+                        input_date_string = NewDate
                         date_matches = False
 
-                    if date_matches:
+                        time.sleep(8)
                         try:
-                            print("Clicking 'document_details_show_multi_function'...")
-                            wait.until(EC.element_to_be_clickable((By.ID, "document_details_show_multi_function"))).click()
+                            input_date = datetime.strptime(input_date_string, "%d-%m-%Y").date()
 
-                            print("Clicking send digital post...")
-                            wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "span.test-send-digital-post"))).click()
+                            date_element = driver.find_element(By.XPATH, "//label[text()='Dato']/following-sibling::div[@class='no-wrap ng-binding']")
+                            found_date_string = date_element.text.strip()
+                            found_date = datetime.strptime(found_date_string, "%d-%m-%Y").date()
+                            print(f"inputdate: {input_date}")
+                            print(f"Found date: {found_date} ")
+                            if input_date == found_date:
+                                print("The dates match.")
+                                date_matches = True
+                        except Exception as ex:
+                            print("Error parsing date:", str(ex))
+                            date_matches = False
 
-                            time.sleep(4)
+                        if date_matches:
+                            try:
+                                print("Clicking 'document_details_show_multi_function'...")
+                                wait.until(EC.element_to_be_clickable((By.ID, "document_details_show_multi_function"))).click()
 
-                            print("Clicking select all recipients...")
-                            driver.find_element(By.XPATH, "//nova-checkbox[@ng-model='$ctrl.allSelectedRecipients' and @ng-change='$ctrl.toggleSelectAll()']//input").click()
+                                print("Clicking send digital post...")
+                                wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "span.test-send-digital-post"))).click()
 
-                            print("Clicking remove recipients...")
-                            wait.until(EC.element_to_be_clickable((By.XPATH, "//*[@ng-click='$ctrl.removeSelectedRecipients()' and @class='btn' and @uib-tooltip='Fjern modtager']"))).click()
+                                time.sleep(4)
 
-                            print("Clicking object select...")
-                            wait.until(EC.element_to_be_clickable((By.XPATH, "//*[@ng-click='$ctrl.objectTypeaheadSvc.clearIfTouched()' and @class= 'btn dropdown-toggle object-select']"))).click()
+                                print("Clicking select all recipients...")
+                                driver.find_element(By.XPATH, "//nova-checkbox[@ng-model='$ctrl.allSelectedRecipients' and @ng-change='$ctrl.toggleSelectAll()']//input").click()
 
-                            actions = ActionChains(driver)
+                                print("Clicking remove recipients...")
+                                wait.until(EC.element_to_be_clickable((By.XPATH, "//*[@ng-click='$ctrl.removeSelectedRecipients()' and @class='btn' and @uib-tooltip='Fjern modtager']"))).click()
 
-                            if BoolCPR:
-                                print("CPR-nummer anvendes")
-                                actions.send_keys(Keys.DOWN).send_keys(Keys.ENTER).perform()
-                                wait.until(EC.visibility_of_element_located((By.ID, "viewModel_NewRecipient"))).send_keys(in_CPRNumber)
-                                time.sleep(3)
-                                actions.send_keys(Keys.ENTER).perform()
-                                wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.btn-dialog-primary.test-send"))).click()
-                            elif BoolCVR:
-                                print("CVR-nummer anvendes")
-                                actions.send_keys(Keys.DOWN).send_keys(Keys.DOWN).send_keys(Keys.ENTER).perform()
-                                wait.until(EC.visibility_of_element_located((By.ID, "viewModel_NewRecipient"))).send_keys(in_CVRNumber)
-                                time.sleep(3)
-                                actions.send_keys(Keys.ENTER).perform()
-                                wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.btn-dialog-primary.test-send"))).click()
-                            else:
-                                raise Exception("Business Rule Exception: Det er hverken et CPR eller CVR nummer")
+                                print("Clicking object select...")
+                                wait.until(EC.element_to_be_clickable((By.XPATH, "//*[@ng-click='$ctrl.objectTypeaheadSvc.clearIfTouched()' and @class= 'btn dropdown-toggle object-select']"))).click()
 
-                        except Exception as e:
-                            print("Error during recipient handling:", str(e))
-                    else:
-                        raise Exception("Business Rule Exception: Date does not match.")
+                                actions = ActionChains(driver)
 
-                    # Clean up
-                    driver.quit()
+                                if BoolCPR:
+                                    print("CPR-nummer anvendes")
+                                    actions.send_keys(Keys.DOWN).send_keys(Keys.ENTER).perform()
+                                    wait.until(EC.visibility_of_element_located((By.ID, "viewModel_NewRecipient"))).send_keys(CPR)
+                                    time.sleep(3)
+                                    actions.send_keys(Keys.ENTER).perform()
+                                    #wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.btn-dialog-primary.test-send"))).click()
+                                elif BoolCVR:
+                                    print("CVR-nummer anvendes")
+                                    actions.send_keys(Keys.DOWN).send_keys(Keys.DOWN).send_keys(Keys.ENTER).perform()
+                                    wait.until(EC.visibility_of_element_located((By.ID, "viewModel_NewRecipient"))).send_keys(CVR)
+                                    time.sleep(3)
+                                    actions.send_keys(Keys.ENTER).perform()
+                                    #wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.btn-dialog-primary.test-send"))).click()
+                                else:
+                                    raise Exception("Business Rule Exception: Det er hverken et CPR eller CVR nummer")
 
-                except Exception as ex:
-                    print("Exception occurred:", str(ex))
-                    traceback.print_exc()
-                    driver.quit()
-                    raise     
+                            except Exception as e:
+                                print("Error during recipient handling:", str(e))
+                        else:
+                            raise Exception("Business Rule Exception: Date does not match.")
+
+                        # Clean up
+                        driver.quit()
+
+                    except Exception as ex:
+                        print("Exception occurred:", str(ex))
+                        traceback.print_exc()
+                        driver.quit()
+                        raise     
+
+                if BoolBeskyttet and DocumentSendt: 
+                    print("Opdaterer dokumenttitlen med FORTROLIG")
+                    FortroligTitle = f"FORTROLIG - {Title}"
+                    try:
+                        url = f"{KMDNovaURL}/Document/Update?api-version=2.0-Case"
+                        payload = {
+                            "common": {
+                                "transactionId": TransactionID,
+                                "uuid": DocumentID
+                            },
+                            "title": FortroligTitle
+                        }             
+                        headers = {
+                                "Authorization": f"Bearer {Token}",
+                                "Content-Type": "application/json"
+                            }
+
+                        response = requests.patch(url, json=payload, headers=headers)
+                        print(f"API status: {response.status_code}")
+                        print(f"API Response: {response.text}")
+                    except requests.exceptions.RequestException as e:
+                        raise Exception(f"API request failed: {e}")
+                    
+                    # Define email details
+                    sender = "RykkerBob<rpamtm001@aarhus.dk>" 
+                    subject = f"Sagsnummer: {Sagsnummer} har adressebeskyttelse"
+                    body = f"""Kære sagsbehandler,<br><br>
+                    Følgende sagsnummer: {Sagsnummer} har adressebeskyttelse - tjek op på dette. <br><br>
+                    Med venlig hilsen<br><br>
+                    Teknik & Miljø<br><br>
+                    Digitalisering<br><br>
+                    Aarhus Kommune
+                    """
+                    smtp_server = "smtp.adm.aarhuskommune.dk"   
+                    smtp_port = 25               
+
+                    # Call the send_email function
+                    send_email(
+                        receiver="Gujc@aarhus.dk",
+                        sender=sender,
+                        subject=subject,
+                        body=body,
+                        smtp_server=smtp_server,
+                        smtp_port=smtp_port,
+                        html_body=True
+                    )
+            
+            except: 
+                os.remove(file_path)
+                raise Exception("Dokumentet blev ikke uploaded korrekt - sletter lokal fil")  
+            
             else: 
                 raise Exception("Dokumentet er ikke oploaded korrekt - Sender errormail")
                     
-
+    print(f"Sletter: {file_path}")
+    os.remove(file_path)
 
     return {
-        "out_DigitaltPostSendt": out_DigitaltPostSendt,
-        "NewDate":NewDate
+        "out_Dokumentsendt": DocumentSendt,
     }
