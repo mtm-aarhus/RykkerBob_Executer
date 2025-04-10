@@ -9,59 +9,35 @@ import pandas as pd
 import os
 from docx import Document
 import getpass
+import locale
+import traceback
+import time
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
 
 def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: OrchestratorConnection): 
-    Out_NewDate = datetime.now().strftime("%d-%m-%Y")
-    def update_word_template(
-        EjerNavn,
-        EjerAdresse,
-        CaseTitle,
-        CaseAdress,
-        Out_NewDate,
-        CaseNumber,
-        input_filename
-        ):
-        # Map placeholders to actual values
-        replacements = {
-            "<<sagEjer1Navn>>": EjerNavn,
-            "<<sagEjer1Adresse>>": EjerAdresse,
-            "<<sagsNavn>>": CaseTitle,
-            "<<sagsAdresse>>": CaseAdress,
-            "klik her for at angive en dato.": Out_NewDate,
-            "«Sagsnummer»": CaseNumber,
-        }
+    KMDNovaLoginRykkerRobot = orchestrator_connection.get_credential("KMDNovaLoginRykkerRobot")
+    RobotUserName = KMDNovaLoginRykkerRobot.username
+    RobotPassword = KMDNovaLoginRykkerRobot.password
 
-        # Load the document
-        doc = Document(input_filename)
-
-        # Replace placeholders in paragraphs
-        for para in doc.paragraphs:
-            for key, val in replacements.items():
-                if key in para.text:
-                    for run in para.runs:
-                        if key in run.text:
-                            run.text = run.text.replace(key, val)
-
-        # Replace placeholders in tables
-        for table in doc.tables:
-            for row in table.rows:
-                for cell in row.cells:
-                    for key, val in replacements.items():
-                        if key in cell.text:
-                            cell.text = cell.text.replace(key, val)
-
-        # Build save path
-        username = getpass.getuser()
-        save_path = os.path.join("C:\\Users", username, "Downloads", input_filename)
-
-        # Save the updated document
-        doc.save(save_path)
-        print(f"Document saved to: {save_path}")
-    
-    
-    
-    #Initialize variables
+    danish_months = [
+        "januar", "februar", "marts", "april", "maj", "juni",
+        "juli", "august", "september", "oktober", "november", "december"
+    ]
     Afgørelsesdato = Arguments_SendDigitalPost.get("in_Afgørelsesdato")
+    date_obj = datetime.strptime(Afgørelsesdato, "%Y-%m-%dT%H:%M:%S")
+    # Format manually for Danish output
+    day = date_obj.day
+    month = danish_months[date_obj.month - 1]
+    year = date_obj.year
+    DecisionDate = f"{day}. {month} {year}"    
+    
+
     Beskrivelse = Arguments_SendDigitalPost.get("in_Beskrivelse")
     BeskrivelseTilEjer = Arguments_SendDigitalPost.get("in_BeskrivelseTilEjer")
     Sagsnummer = Arguments_SendDigitalPost.get("in_Sagsnummer")
@@ -71,8 +47,71 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
     RykkerNummer = Arguments_SendDigitalPost.get("in_RykkerNummer")
     Token = Arguments_SendDigitalPost.get("in_Token")
     
+    
+    NewDate = datetime.now().strftime("%d-%m-%Y")
+
+    def update_word_template(
+        EjerNavn,
+        EjerAdresse,
+        CaseTitle,
+        CaseAdress,
+        NewDate,
+        CaseNumber,
+        DecisionDate,
+        input_filename
+    ):
+        replacements = {
+            "<<sagEjer1Navn>>": EjerNavn,
+            "<<sagEjer1Adresse>>": EjerAdresse,
+            "<<sagsNavn>>": CaseTitle,
+            "<<sagsAdresse>>": CaseAdress,
+            "<<DatoPlaceholder>>": NewDate,
+            "«Sagsnummer»": CaseNumber,
+            "<<dato>>": DecisionDate
+        }
+
+        def replace_in_paragraph(paragraph, replacements):
+            full_text = ''.join(run.text for run in paragraph.runs)
+            replaced = False
+            for key, val in replacements.items():
+                if key in full_text:
+                    full_text = full_text.replace(key, val)
+                    replaced = True
+            if replaced:
+                for run in paragraph.runs:
+                    run.text = ''
+                paragraph.runs[0].text = full_text
+
+        def replace_in_container(container, replacements):
+            for paragraph in container.paragraphs:
+                replace_in_paragraph(paragraph, replacements)
+            for table in container.tables:
+                for row in table.rows:
+                    for cell in row.cells:
+                        replace_in_container(cell, replacements)
+
+        # Load the document
+        doc = Document(input_filename)
+
+        # Replace in body
+        replace_in_container(doc, replacements)
+
+        # Replace in headers and footers
+        for section in doc.sections:
+            for hdr in [section.header, section.first_page_header, section.even_page_header]:
+                replace_in_container(hdr, replacements)
+            for ftr in [section.footer, section.first_page_footer, section.even_page_footer]:
+                replace_in_container(ftr, replacements)
+
+        # Save to Downloads
+        username = getpass.getuser()
+        save_path = os.path.join("C:\\Users", username, "Downloads", input_filename)
+        doc.save(save_path)
+        print(f"✅ Document saved to: {save_path}")
+            
+    
     out_DigitaltPostSendt = False
-    AarhusKommuneCVR = "55133018"
+    AarhusKommuneCVR = "5513301128"
     IsCvrAarhusKommune = False
 
     # Henter yderligere sags information: 
@@ -378,16 +417,19 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
             try: 
                 if RykkerNummer == 2: 
                     print("Sender 2. rykker")
+                    print(NewDate)
                     update_word_template(
                         EjerNavn,
                         EjerAdresse,
                         CaseTitle,
                         CaseAddress,
-                        Out_NewDate,
+                        NewDate,
                         Sagsnummer,
+                        DecisionDate = "",
                         input_filename="1. Orientering til ejer vedr. rykker for paabegyndelse.docx"
                     )
-
+                    downloads_path = os.path.join("C:\\Users", os.getlogin(), "Downloads")
+                    file_path = os.path.join(downloads_path, "1. Orientering til ejer vedr. rykker for paabegyndelse.docx")
                 else: 
                     if RykkerNummer == 3: 
                         print("Sender 3. rykker")
@@ -396,16 +438,307 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
                             EjerAdresse,
                             CaseTitle,
                             CaseAddress,
-                            Out_NewDate,
+                            NewDate,
                             Sagsnummer,
+                            DecisionDate,
                             input_filename="2. Orientering til ejer vedr. rykker for paabegyndelse.docx"
                         )
+                        downloads_path = os.path.join("C:\\Users", os.getlogin(), "Downloads")
+                        file_path = os.path.join(downloads_path, "2. Orientering til ejer vedr. rykker for paabegyndelse.docx")
                     else: 
                         raise ValueError("Det er hverken 2. eller 3. rykker som er blevet oprettet")
+                # Oploader dokument til Nova
+                parsed_date = datetime.strptime(NewDate, "%d-%m-%Y")
+                current_time = datetime.now().strftime("%H:%M:%S")
+                ConfigDate = parsed_date.strftime("%Y-%m-%d") + "T" + current_time + "Z"
+                novaUserId = "a1ac3c67-ab17-4969-8360-4989d0c8426a"
+                fullName = "Robot SvcRpaMTM001"
+                racfId = "AZMTM01"
+                TransactionID = str(uuid.uuid4())
+                out_DocumentID = str(uuid.uuid4())
+                ID = str(uuid.uuid4())
+                if RykkerNummer == 2: 
+                    out_Title = "Orientering til ejer vedr. rykker for påbegyndelse"
+                else:
+                    if RykkerNummer == 3: 
+                        out_Title = "2. Orientering til ejer vedr. rykker for påbegyndelse"
                     
+                try: # Poster dokument
+
+                    url = f"{KMDNovaURL}/Document/UploadFile/{TransactionID}/{out_DocumentID}?api-version=2.0-Case"
+
+                    headers = {
+                        "Authorization": f"Bearer {Token}",
+                    }
+                        # Open the file you want to upload
+                    with open(file_path, "rb") as f:
+                        files = {
+                            "file": (
+                                os.path.basename(file_path), 
+                                f, 
+                                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                            )
+                        }
+
+                        response = requests.post(url, headers=headers, files=files)
+               
+                    print(f"API status: {response.status_code}")
+                    print(f"API Response: {response.text}")
+
+
+                except Exception as api_error:
+                    print(f"Error occurred during API call: {api_error}")
+                
+                #Uoloader dokument: 
+                try:
+
+                    url = f"{KMDNovaURL}/Document/Import?api-version=2.0-Case"
+                    payload = {
+                        "common": {
+                            "transactionId": ID,
+                            "uuid": out_DocumentID
+                        },
+                        "caseUuid": CaseUuid,
+                        "documentType": "Udgående",
+                        "title": out_Title,
+                        "approved": True,
+                        "acceptReceived": True,
+                        "AccessToDocuments": True,
+                        "sensitivity": "Følsomme",
+                        "documentDate": ConfigDate,
+                        "caseworker": {
+                            "kspIdentity": {
+                                "novaUserId": novaUserId,
+                                "racfId": racfId,
+                                "fullName": fullName
+                            }
+                        },
+                        "documentParty": {
+                            "identificationType": identificationType,
+                            "identification": identification
+                        }
+                    }
+                    headers = {
+                        "Authorization": f"Bearer {Token}",
+                        "Content-Type": "application/json"
+                    }
+
+                    response = requests.post(url, json=payload, headers=headers)
+                    print(f"API status: {response.status_code}")
+                    print(f"API Response: {response.text}")
+
+
+                except Exception as api_error:
+                    print(f"Error occurred during API call: {api_error}")
+
+
+
             except: 
                 print("Sletter lokal fil")
+                os.remove(file_path)
+                raise Exception("Dokumentet blev ikke uploaded korrekt - sletter lokal fil")
+
+            try: # Tjekker om documentet er uploaded 
+                try:
+                    url = f"{KMDNovaURL}/Document/GetList?api-version=2.0-Case"
+                    payload = {
+                            "common": {
+                                "transactionId": str(uuid.uuid4())
+                            },
+                            "paging": {
+                                "startRow": 1,
+                                "numberOfRows": 1
+                            },
+                            "caseNumber": Sagsnummer,
+                            "getOutput": {
+                                "caseworker": True,
+                                "documentDate": True,
+                                "title": True,
+                                "description": True,
+                                "fileExtension": True,
+                                "approved": True,
+                                "acceptReceived": True
+                            }
+                    }                
+                    headers = {
+                            "Authorization": f"Bearer {Token}",
+                            "Content-Type": "application/json"
+                        }
+
+                    response = requests.put(url, json=payload, headers=headers)
+                    print(f"API status: {response.status_code}")
+                    print(f"API Response: {response.text}")
+                except requests.exceptions.RequestException as e:
+                    raise Exception(f"API request failed: {e}")
+                
+                Godkendt = "True"
+                CurrentDate = parsed_date.strftime("%Y-%m-%d") + "T" + "00:00:00"
+                # Extract the first document
+                data = json.loads(response.text)  # Convert JSON string to dict
+                item = data["documents"][0]
+
+                # Check documentDate
+                document_date_str = item.get("documentDate")
+                if document_date_str is None:
+                    DateMatches = False
+                else:
+                    print(f"Current date er: {CurrentDate}")
+                    print(f"DocumentDate: {document_date_str}")
+                    DateMatches = (document_date_str == CurrentDate)
+
+                # Check title
+                title_str = item.get("title")
+                if title_str is None:
+                    TitleMatches = False
+                else:
+                    TitleMatches = (title_str == out_Title)
+
+                # Check approved
+                approved_value = str(item.get("approved"))
+                if approved_value is None:
+                    ApprovedMatches = False
+                else:
+                    print(approved_value)
+                    ApprovedMatches = (approved_value == Godkendt)
+
+                # Output results
+                print("DateMatches:", DateMatches)
+                print("TitleMatches:", TitleMatches)
+                print("ApprovedMatches:", ApprovedMatches)
+                
+                if ApprovedMatches and DateMatches and TitleMatches:
+                    print("Dokumentet er sendt til modtageren, alt er godt")
+                    DocumentSendt = True
+                else:
+                    DocumentSendt = False
+            except: 
+                os.remove(file_path)
+                raise Exception("Dokumentet blev ikke uploaded korrekt - sletter lokal fil")
+
+            if DocumentSendt: 
+               try:
+                    # Setup ChromeDriver options
+                    print("Initializing Chrome Driver...")
+                    app_data_path = os.getenv("LOCALAPPDATA")
+                    chrome_user_data_path = os.path.join(app_data_path, "Google", "Chrome", "User Data")
+
+                    options = Options()
+                    #options.add_argument("--headless=new")
+                    options.add_argument(f"--user-data-dir={chrome_user_data_path}")
+                    options.add_argument("--window-size=1920,900")
+                    options.add_argument("--start-maximized")
+                    options.add_argument("force-device-scale-factor=0.5")
+                    options.add_argument("--disable-extensions")
+                    options.add_argument("--profile-directory=Default")
+                    options.add_argument("--remote-debugging-port=9222")
+                    options.add_argument('--remote-debugging-pipe')
+
+                    driver = webdriver.Chrome(options=options)
+                    wait = WebDriverWait(driver, 30)
+
+                    print("Creating WebDriver...")
+                    print("Navigating to URL...")
+                    driver.get("https://cap-wsswlbs-wm3q2021.kmd.dk/KMD.YH.KMDLogonWEB.NET/AspSson.aspx?KmdLogon_sApplCallback=https://cap-awswlbs-wm3q2021.kmd.dk/KMDNovaESDH/forside&KMDLogon_sProtocol=tcpip&KMDLogon_sApplPrefix=--&KMDLogon_sOrigin=ApplAsp&ExtraData=true")
+                    print("Maximizing window...")
+                    driver.maximize_window()
+
+                    # Log in
+                    print("Waiting for Username field...")
+                    wait.until(EC.visibility_of_element_located((By.NAME, "UserInfo.Username"))).send_keys(RobotUserName)
+                    print("Entered Username.")
+                    wait.until(EC.visibility_of_element_located((By.NAME, "UserInfo.Password"))).send_keys(RobotPassword)
+                    print("Entered Password.")
+                    wait.until(EC.element_to_be_clickable((By.ID, "logonBtn"))).click()
+                    print("Clicked Logon button.")
+
+                    # Navigate
+                    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.btn.dropdown-toggle.object-select"))).click()
+                    print("Opened dropdown.")
+                    wait.until(EC.element_to_be_clickable((By.XPATH, "//li/a[.//span[text()='Sag']]"))).click()
+                    print("Selected 'Sag'.")
+                    wait.until(EC.visibility_of_element_located((By.ID, "SearchObject"))).send_keys(Sagsnummer + Keys.ENTER)
+                    print("Entered Case Number.")
+
+                    text_to_find = "Orientering til ejer vedr. rykker for påbegyndelse"
+                    wait.until(EC.element_to_be_clickable((By.XPATH, f"//span[contains(text(), '{text_to_find}')]"))).click()
+                    print("Found and clicked target text.")
+
+                    # Compare dates
+                    input_date_string = NewDate
+                    date_matches = False
+
+                    time.sleep(8)
+                    try:
+                        input_date = datetime.datetime.strptime(input_date_string, "%d-%m-%Y").date()
+
+                        date_element = driver.find_element(By.XPATH, "//label[text()='Dato']/following-sibling::div[@class='no-wrap ng-binding']")
+                        found_date_string = date_element.text.strip()
+                        found_date = datetime.datetime.strptime(found_date_string, "%d-%m-%Y").date()
+
+                        if input_date == found_date:
+                            print("The dates match.")
+                            date_matches = True
+                    except Exception as ex:
+                        print("Error parsing date:", str(ex))
+                        date_matches = False
+
+                    if date_matches:
+                        try:
+                            print("Clicking 'document_details_show_multi_function'...")
+                            wait.until(EC.element_to_be_clickable((By.ID, "document_details_show_multi_function"))).click()
+
+                            print("Clicking send digital post...")
+                            wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "span.test-send-digital-post"))).click()
+
+                            time.sleep(4)
+
+                            print("Clicking select all recipients...")
+                            driver.find_element(By.XPATH, "//nova-checkbox[@ng-model='$ctrl.allSelectedRecipients' and @ng-change='$ctrl.toggleSelectAll()']//input").click()
+
+                            print("Clicking remove recipients...")
+                            wait.until(EC.element_to_be_clickable((By.XPATH, "//*[@ng-click='$ctrl.removeSelectedRecipients()' and @class='btn' and @uib-tooltip='Fjern modtager']"))).click()
+
+                            print("Clicking object select...")
+                            wait.until(EC.element_to_be_clickable((By.XPATH, "//*[@ng-click='$ctrl.objectTypeaheadSvc.clearIfTouched()' and @class= 'btn dropdown-toggle object-select']"))).click()
+
+                            actions = ActionChains(driver)
+
+                            if BoolCPR:
+                                print("CPR-nummer anvendes")
+                                actions.send_keys(Keys.DOWN).send_keys(Keys.ENTER).perform()
+                                wait.until(EC.visibility_of_element_located((By.ID, "viewModel_NewRecipient"))).send_keys(in_CPRNumber)
+                                time.sleep(3)
+                                actions.send_keys(Keys.ENTER).perform()
+                                wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.btn-dialog-primary.test-send"))).click()
+                            elif BoolCVR:
+                                print("CVR-nummer anvendes")
+                                actions.send_keys(Keys.DOWN).send_keys(Keys.DOWN).send_keys(Keys.ENTER).perform()
+                                wait.until(EC.visibility_of_element_located((By.ID, "viewModel_NewRecipient"))).send_keys(in_CVRNumber)
+                                time.sleep(3)
+                                actions.send_keys(Keys.ENTER).perform()
+                                wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.btn-dialog-primary.test-send"))).click()
+                            else:
+                                raise Exception("Business Rule Exception: Det er hverken et CPR eller CVR nummer")
+
+                        except Exception as e:
+                            print("Error during recipient handling:", str(e))
+                    else:
+                        raise Exception("Business Rule Exception: Date does not match.")
+
+                    # Clean up
+                    driver.quit()
+
+                except Exception as ex:
+                    print("Exception occurred:", str(ex))
+                    traceback.print_exc()
+                    driver.quit()
+                    raise     
+            else: 
+                raise Exception("Dokumentet er ikke oploaded korrekt - Sender errormail")
+                    
+
+
     return {
         "out_DigitaltPostSendt": out_DigitaltPostSendt,
-        "Out_NewDate":Out_NewDate
+        "NewDate":NewDate
     }

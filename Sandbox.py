@@ -15,7 +15,7 @@ import CheckIfEmailSent
 import SendDigitalPost
 #   ---- Henter Assets ----
 orchestrator_connection = OrchestratorConnection("Henter Assets", os.getenv('OpenOrchestratorSQL'),os.getenv('OpenOrchestratorKey'), None)
-KMDNovaURL = orchestrator_connection.get_constant("KMDNovaURL").value
+KMDNovaURL = orchestrator_connection.get_constant("KMDNovaURL").valuef
 KMD_access_token = GetKMDToken(orchestrator_connection)
 #GetNovaCookies(orchestrator_connection)
 
@@ -180,18 +180,19 @@ else:
         # Text = SendBomEmail_Output_arguments.get("out_text")
         # print(Text)
 
-            # ----- Run CheckIfEmailSent -----
-        Arguments_CheckIfEmailSent = {
-            "in_Sagsnummer": Sagsnummer,
-            "in_Token": KMD_access_token,
-            "in_Title": Title,
-            "in_NovaAPIURL": KMDNovaURL,
+        #     # ----- Run CheckIfEmailSent -----
+        # Arguments_CheckIfEmailSent = {
+        #     "in_Sagsnummer": Sagsnummer,
+        #     "in_Token": KMD_access_token,
+        #     "in_Title": Title,
+        #     "in_NovaAPIURL": KMDNovaURL,
             
-        }
-        CheckIfEmailSent_Output_arguments = CheckIfEmailSent.invoke_CheckIfEmailSent(Arguments_CheckIfEmailSent,orchestrator_connection)
-        out_DocumentSendt = CheckIfEmailSent_Output_arguments.get("out_DocumentSendt")
-        print(out_DocumentSendt)
-
+        # }
+        # CheckIfEmailSent_Output_arguments = CheckIfEmailSent.invoke_CheckIfEmailSent(Arguments_CheckIfEmailSent,orchestrator_connection)
+        # out_DocumentSendt = CheckIfEmailSent_Output_arguments.get("out_DocumentSendt")
+        # print(out_DocumentSendt)
+        out_DocumentSendt = True
+        
         if out_DocumentSendt and (RykkerNummer == 2 or RykkerNummer == 3):
             # ----- Run SendDigitalPost -----
             Arguments_SendDigitalPost = {
