@@ -5,17 +5,18 @@ def invoke_GetCaseInfoAndCheckCaseState(Arguments_GetCaseInfoAndCheckCaseState):
     import requests
     import uuid
     from datetime import datetime
+    import Datastore
     
     #Initialize variables
     caseUuid = Arguments_GetCaseInfoAndCheckCaseState.get("in_caseUuid")
-    caseworkerPersonId = Arguments_GetCaseInfoAndCheckCaseState.get("in_caseworkerPersonId")
     ListOfErrorMessages = Arguments_GetCaseInfoAndCheckCaseState.get("in_ListOfErrorMessages")
     ListOfFailedCases = Arguments_GetCaseInfoAndCheckCaseState.get("in_ListOfFailedCases")
     KMDNovaURL = Arguments_GetCaseInfoAndCheckCaseState.get("in_KMDNovaURL")
     Sagsnummer = Arguments_GetCaseInfoAndCheckCaseState.get("in_Sagsnummer")
     Token = Arguments_GetCaseInfoAndCheckCaseState.get("in_Token")
+    racfId = Arguments_GetCaseInfoAndCheckCaseState.get("in_racfId")
+    fullName = Arguments_GetCaseInfoAndCheckCaseState.get("in_fullName")
     Out_MissingData =False
-
 
     # Functioner: 
     def check_bom_case(data):
@@ -166,6 +167,7 @@ def invoke_GetCaseInfoAndCheckCaseState(Arguments_GetCaseInfoAndCheckCaseState):
             # If the error message contains "out_", extract relevant part
             if "out_" in error_message:
                 try:
+                    data = Datastore.load_data()
                     split_str = error_var.split("_")[1]
                     refined_str = split_str.split(" =")[0]
                     print(refined_str)
@@ -173,7 +175,6 @@ def invoke_GetCaseInfoAndCheckCaseState(Arguments_GetCaseInfoAndCheckCaseState):
                     UuidMissingData = str(uuid.uuid4())
                     Aktivitetsnavn = "Nyt materiale"
                     BeskrivelseManglerData = f"Mangler følgende datakilde: {refined_str}"
-                    in_caseworkerPersonId = "43ed2c49-a62f-4dde-84e1-428b0061328a"
                     StartDato = datetime.now().strftime("%Y-%m-%dT%H:%M:%S+00:00")
 
                     url = f"{KMDNovaURL}/Task/Import?api-version=2.0-Case"
@@ -186,13 +187,10 @@ def invoke_GetCaseInfoAndCheckCaseState(Arguments_GetCaseInfoAndCheckCaseState):
                         "caseUuid": caseUuid,
                         "title": Aktivitetsnavn,
                         "description": BeskrivelseManglerData,
-                        #"caseworkerPersonId": in_caseworkerPersonId,
                         "caseworker": {
-                            "losIdentity": {
-                                "novaUnitId": "0c89d77b-c86f-460f-9eaf-d238e4f451ed",
-                                "administrativeUnitId": 70528,
-                                "fullName": "Plan og Byggeri",
-                                "userKey": "2GBYGSAG"
+                            "kspIdentity": {
+                                "racfId": racfId,
+                                "fullName": fullName,
                             }
                         },
                         "startDate": StartDato,
@@ -210,6 +208,9 @@ def invoke_GetCaseInfoAndCheckCaseState(Arguments_GetCaseInfoAndCheckCaseState):
                 except Exception as api_error:
                     print(f"Error occurred during API call: {api_error}")
                 Out_MissingData =True
+                data["ListOfFailedCases"].append(Sagsnummer)
+                data["ListOfErrorMessages"].append(refined_str)
+                Datastore.save_data(data)
             else:
                 Out_MissingData =False
     

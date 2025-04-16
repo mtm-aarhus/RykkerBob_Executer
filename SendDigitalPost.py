@@ -41,12 +41,12 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
     Beskrivelse = Arguments_SendDigitalPost.get("in_Beskrivelse")
     BeskrivelseTilEjer = Arguments_SendDigitalPost.get("in_BeskrivelseTilEjer")
     Sagsnummer = Arguments_SendDigitalPost.get("in_Sagsnummer")
-    caseworkerPersonId = Arguments_SendDigitalPost.get("in_caseworkerPersonId")
     Dato = Arguments_SendDigitalPost.get("in_Dato")
     KMDNovaURL = Arguments_SendDigitalPost.get("in_NovaAPIURL")
     RykkerNummer = Arguments_SendDigitalPost.get("in_RykkerNummer")
     Token = Arguments_SendDigitalPost.get("in_Token")
-    
+    fullName = Arguments_SendDigitalPost.get("in_fullName"),
+    racfId = Arguments_SendDigitalPost.get("in_racfId")
     
     NewDate = datetime.now().strftime("%d-%m-%Y")
 
@@ -342,15 +342,12 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
                     "caseUuid": CaseUuid,
                     "title": Aktivitetsnavn,
                     "description": f"{BeskrivelseTilEjer} - Aarhus Kommune er ejer",
-                    #"caseworkerPersonId": caseworkerPersonId,
-                    "caseworker": {
-                        "losIdentity": {
-                            "novaUnitId": "0c89d77b-c86f-460f-9eaf-d238e4f451ed",
-                            "administrativeUnitId": 70528,
-                            "fullName": "Plan og Byggeri",
-                            "userKey": "2GBYGSAG"
-                        }
-                    },
+                        "caseworker": {
+                            "kspIdentity": {
+                                "racfId": racfId,
+                                "fullName": fullName,
+                            }
+                        },
                     "startDate": StartDato,
                     "TaskTypeName": "Aktivitet",
                     "statusCode": "S"
@@ -386,13 +383,10 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
                 "caseUuid": CaseUuid,
                 "title": Aktivitetsnavn,
                 "description": f"{BeskrivelseTilEjer} - Ejer mangler adresse",
-                #"caseworkerPersonId": caseworkerPersonId,
                 "caseworker": {
-                    "losIdentity": {
-                        "novaUnitId": "0c89d77b-c86f-460f-9eaf-d238e4f451ed",
-                        "administrativeUnitId": 70528,
-                        "fullName": "Plan og Byggeri",
-                        "userKey": "2GBYGSAG"
+                    "kspIdentity": {
+                        "racfId": racfId,
+                        "fullName": fullName,
                     }
                 },
                 "startDate": StartDato,

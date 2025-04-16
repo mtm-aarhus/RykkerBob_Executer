@@ -11,6 +11,8 @@ def reset(orchestrator_connection: OrchestratorConnection) -> None:
     kill_all(orchestrator_connection)
     open_all(orchestrator_connection)
 
+def Send_Finish_mail(orchestrator_connection: OrchestratorConnection) -> None:
+    orchestrator_connection.log_trace("Sender mail til sagsbehandler")
 
 def clean_up(orchestrator_connection: OrchestratorConnection) -> None:
     """Do any cleanup needed to leave a blank slate."""
