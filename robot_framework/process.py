@@ -42,7 +42,7 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
     TaskDeadline = "2025-02-18T01:00:00+01:00"
     fullName = "Maria Møller Sørensen"
     racfId = "AZ52140"
-    RykkerNummer = 2
+    RykkerNummer = 1
 
 
     # ----- Run GetCaseInfoAndCheckCaseState -----
