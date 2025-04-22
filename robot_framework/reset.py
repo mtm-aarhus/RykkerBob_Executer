@@ -17,9 +17,9 @@ def reset(orchestrator_connection: OrchestratorConnection) -> None:
 def Send_Finish_mail(orchestrator_connection: OrchestratorConnection) -> None:
     orchestrator_connection.log_trace("Sender mail til sagsbehandler")
     
-    processed_items = data["out_ListOfProcessedItems"]
-    failed_cases = data["out_ListOfFailedCases"]
-    error_messages = data["out_ListOfErrorMessages"]
+    processed_items = data["ListOfProcessedItems"]
+    failed_cases = data["ListOfFailedCases"]
+    error_messages = data["ListOfErrorMessages"]
 
     if processed_items:
         print("Sender email overblik over kørte sagsnumre")

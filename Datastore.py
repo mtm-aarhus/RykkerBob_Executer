@@ -5,9 +5,9 @@ DATA_FILE = "queue_data.json"
 
 # Default structure if the file doesn't exist
 default_data = {
-    "out_ListOfProcessedItems": [],
-    "out_ListOfErrorMessages": [],
-    "out_ListOfFailedCases": []
+    "ListOfProcessedItems": [],
+    "ListOfErrorMessages": [],
+    "ListOfFailedCases": []
 }
 
 def load_data():

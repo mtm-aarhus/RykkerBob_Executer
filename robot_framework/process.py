@@ -352,7 +352,7 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                     print(f"Error occurred during API call: {api_error}")    
 
                 # Tilføjer sagsnummeret til listen over kørte sager: 
-                data["out_ListOfProcessedItems"].append(Sagsnummer)
+                data["ListOfProcessedItems"].append(Sagsnummer)
 
             else:       
                 print("Dokumentet blev ikke sendt korrekt - Sagen opdateres ikke")    
