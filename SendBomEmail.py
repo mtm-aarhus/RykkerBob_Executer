@@ -94,10 +94,10 @@ def invoke_SendBomEmail(Arguments_SendBomEmail,orchestrator_connection: Orchestr
             "Name": None,
         }
     }
-
+    
     # Convert to JSON string
     body_str = json.dumps(body, ensure_ascii=False)
-
+    print(body_str)
     # Send request
     response = requests.post(url, headers=headers, cookies=cookies, data=body_str.encode("utf-8"))
     print(f"Netværkskald har status: {response.status_code}")
