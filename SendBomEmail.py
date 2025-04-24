@@ -40,7 +40,9 @@ def invoke_SendBomEmail(Arguments_SendBomEmail,orchestrator_connection: Orchestr
         Address = f"{StreetName} {HouseNumber}"
 
     print(f"CaseAdress er: {Address}")
-
+    print(f"Kmd_logon_web_session_handler{Logon_web_session_handler}")
+    print(f"Verification_token {Verification_token }")
+    print(f"Request_verification_token{Request_verification_token}")
 
     url = "https://cap-awswlbs-wm3q2021.kmd.dk/KMDNovaESDH/api/ServiceRelayer/BomCase/SendReplyToApplicant"
 
