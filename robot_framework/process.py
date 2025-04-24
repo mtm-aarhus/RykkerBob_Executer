@@ -20,6 +20,7 @@ import CheckIfEmailSent
 import SendDigitalPost
 from SendSMTPMail import send_email 
 import Datastore
+import json
 
 # pylint: disable-next=unused-argument
 def process(orchestrator_connection: OrchestratorConnection, queue_element: QueueElement | None = None) -> None:
@@ -32,18 +33,37 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
     KMD_access_token = GetKMDToken(orchestrator_connection)
     #GetNovaCookies(orchestrator_connection)
     data = Datastore.load_data()
+           #---- Henter kø-elementer ----
+    queue = json.loads(queue_element.data)
+
+        # ---- Henter Kø-elementer ----
+    Sagsnummer = queue.get("caseNumber")
+    Taskuuid = queue.get("taskUuid")
+    caseUuid = queue.get("caseUuid")
+    TaskStartDate = queue.get("taskStartDate")
+    TaskDeadline = queue.get("taskDeadline")
+    fullName = queue.get("fullName")
+    racfId = queue.get("racfId")
+    RykkerNummer = queue.get("RykkerNummer")
 
 
-    # ---- Henter Kø-elementer ----
-    Sagsnummer = "S2021-456011"
-    Taskuuid = "a56f6298-0a23-408e-bd26-e01808907c28"
-    caseUuid = "9c60ce1c-5f57-44ab-b805-44800017000c"
-    TaskStartDate = "2025-02-18T13:23:10.9487697+01:00"
-    TaskDeadline = "2025-02-18T01:00:00+01:00"
-    fullName = "Maria Møller Sørensen"
-    racfId = "AZ52140"
-    RykkerNummer = 1
+    #     # ---- Henter Kø-elementer ----
+    # Sagsnummer = "S2021-456011"
+    # Taskuuid = "a56f6298-0a23-408e-bd26-e01808907c28"
+    # caseUuid = "9c60ce1c-5f57-44ab-b805-44800017000c"
+    # TaskStartDate = "2025-02-18T13:23:10.9487697+01:00"
+    # TaskDeadline = "2025-02-18T01:00:00+01:00"
+    # fullName = "Maria Møller Sørensen"
+    # racfId = "AZ52140"
+    # RykkerNummer = 1
 
+    orchestrator_connection.log_info(f"Sagsnummer: {Sagsnummer}")
+    orchestrator_connection.log_info(f"Taskuuid: {Taskuuid}")
+    orchestrator_connection.log_info(f"caseUuid: {caseUuid}")
+    orchestrator_connection.log_info(f"TaskStartDate: {TaskStartDate}")
+    orchestrator_connection.log_info(f"TaskDeadline: {TaskDeadline}")
+    orchestrator_connection.log_info(f"Sagsbehandler: {fullName}")
+    orchestrator_connection.log_info(f"RykkerNummer: {RykkerNummer}")
 
     # ----- Run GetCaseInfoAndCheckCaseState -----
     Arguments_GetCaseInfoAndCheckCaseState = {
@@ -70,8 +90,8 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
     HouseNumber = GetCaseInfoAndCheckCaseState_Output_arguments.get("Out_HouseNumber")
     IsBomCase = GetCaseInfoAndCheckCaseState_Output_arguments.get("out_IsBomCase")
     Kommunenummer = GetCaseInfoAndCheckCaseState_Output_arguments.get("out_Kommunenummer")
-    ListOfErrorMessages = GetCaseInfoAndCheckCaseState_Output_arguments.get("ListOfFailedCases")
-    ListOfFailedCases = GetCaseInfoAndCheckCaseState_Output_arguments.get("ListOfFailedCases")
+    ListOfErrorMessages = GetCaseInfoAndCheckCaseState_Output_arguments.get("ListOfFailedCases") #bruges disse her?
+    ListOfFailedCases = GetCaseInfoAndCheckCaseState_Output_arguments.get("ListOfFailedCases")#bruges disse her?
     MissingData = GetCaseInfoAndCheckCaseState_Output_arguments.get("Out_MissingData")
     StreetName = GetCaseInfoAndCheckCaseState_Output_arguments.get("Out_StreetName")
     if MissingData: 
