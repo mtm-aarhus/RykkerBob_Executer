@@ -8,3 +8,5 @@ def initialize(orchestrator_connection: OrchestratorConnection) -> None:
     import Datastore
 
     Datastore.save_data(Datastore.default_data.copy())
+    from NovaLogin import GetNovaCookies
+    GetNovaCookies(orchestrator_connection)

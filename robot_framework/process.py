@@ -31,7 +31,7 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
     orchestrator_connection = OrchestratorConnection("Henter Assets", os.getenv('OpenOrchestratorSQL'),os.getenv('OpenOrchestratorKey'), None)
     KMDNovaURL = orchestrator_connection.get_constant("KMDNovaURL").value
     KMD_access_token = GetKMDToken(orchestrator_connection)
-    #GetNovaCookies(orchestrator_connection)
+    
     data = Datastore.load_data()
            #---- Henter kø-elementer ----
     queue = json.loads(queue_element.data)
