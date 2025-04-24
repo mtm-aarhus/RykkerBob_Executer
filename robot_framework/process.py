@@ -94,7 +94,6 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
     ListOfFailedCases = GetCaseInfoAndCheckCaseState_Output_arguments.get("ListOfFailedCases")#bruges disse her?
     MissingData = GetCaseInfoAndCheckCaseState_Output_arguments.get("Out_MissingData")
     StreetName = GetCaseInfoAndCheckCaseState_Output_arguments.get("Out_StreetName")
-    out_DigitaltPostSendt = False
     if MissingData: 
         print("Sagen mangler data, og tilføjes derfor til listen over fejlede sager.")
 
@@ -329,6 +328,7 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                         print(f"Error occurred during API call: {api_error}")
             else:
                 print(f"Der udsendes ikke digital post da rykker nummer er: {RykkerNummer}")
+                out_DigitaltPostSendt = False
             
 
             if out_DigitaltPostSendt:
