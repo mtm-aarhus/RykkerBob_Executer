@@ -190,7 +190,20 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
             }
 
             assigned_variables = switch.get(RykkerNummer)()  
-            globals().update(assigned_variables)
+            if assigned_variables is None:
+                raise ValueError(f"Ugyldigt RykkerNummer: {RykkerNummer}")
+
+            # Extract all needed variables with .get() to avoid KeyErrors
+            Deadline = assigned_variables.get("Deadline")
+            EmailText = assigned_variables.get("EmailText")
+            Title = assigned_variables.get("Title")
+            Description = assigned_variables.get("Description")
+            StrDeadline = assigned_variables.get("StrDeadline")
+            DigitalPostSendt = assigned_variables.get("DigitalPostSendt")
+            BeskrivelseTilEjer = assigned_variables.get("BeskrivelseTilEjer")
+            Tidspunkt = assigned_variables.get("Tidspunkt")
+            Dato = assigned_variables.get("Dato")
+            #globals().update(assigned_variables)
 
             # ----- Run Send BomEmail -----
             Arguments_SendBomEmail = {
@@ -211,6 +224,9 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                 "in_EmailText": EmailText,
                 "in_Title": Title
             }
+
+
+
             SendBomEmail_Output_arguments = SendBomEmail.invoke_SendBomEmail(Arguments_SendBomEmail,orchestrator_connection)
             Text = SendBomEmail_Output_arguments.get("out_text")
             print(Text)
