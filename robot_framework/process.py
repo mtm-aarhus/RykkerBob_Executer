@@ -116,8 +116,10 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                 AfgørelsesDato = datetime.strptime(Afgørelsesdato,"%Y-%m-%dT%H:%M:%S")
                 AfgørelsesDatoFormateret = (AfgørelsesDato + relativedelta(years=1, days=-1)).strftime("%m/%d/%Y")
                 FormatDate = datetime.strptime(AfgørelsesDatoFormateret, "%m/%d/%Y").strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+                
                 # Extracting date and time separately
                 Dato, Tidspunkt = FormatDate.split(" ")
+                StrNewDeadline = (AfgørelsesDato + relativedelta(years=1, days=-1)).strftime("%Y-%m-%dT") + "00:00:00"
                 EmailText = ("Vi har endnu ikke modtaget besked om, at dit projekt er sat i gang.\n\n"
                             "Tilladelsen bortfalder, hvis arbejdet ikke er sat i gang inden et år fra tilladelsens dato. "
                             "Dette skal meddeles via Byg og Miljø.\n\n\nMed venlig hilsen\n\nByggeri")
@@ -131,6 +133,7 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                 AfgørelsesDatoFormateret = (AfgørelsesDato + relativedelta(years=1, days=-1)).strftime("%m/%d/%Y")
                 FormatDate = datetime.strptime(AfgørelsesDatoFormateret, "%m/%d/%Y").strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
                 Dato, Tidspunkt = FormatDate.split(" ")
+                StrNewDeadline = (AfgørelsesDato + relativedelta(years=1, days=-1)).strftime("%Y-%m-%dT") + "00:00:00"
                 EmailText = ("Vi har endnu ikke modtaget besked om, at dit projekt er sat i gang.\n\n"
                 "Tilladelsen bortfalder, hvis arbejdet ikke er sat i gang inden et år fra tilladelsens dato. "
                 "Dette skal meddeles via Byg og Miljø.\n\n\nMed venlig hilsen\n\nByggeri")
@@ -147,7 +150,7 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                 FormatDate = datetime.strptime(AfgørelsesDatoFormateret, "%m/%d/%Y").strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
                 # Extracting date and time separately
                 Dato, Tidspunkt = FormatDate.split(" ")
-            
+                StrNewDeadline = (AfgørelsesDato + relativedelta(years=1, days=-1)).strftime("%Y-%m-%dT") + "00:00:00"
                 # Set locale to Danish for month names
                 locale.setlocale(locale.LC_TIME, "da_DK.UTF-8")
 
@@ -196,8 +199,7 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
             BeskrivelseTilEjer = assigned_variables.get("BeskrivelseTilEjer")
             Tidspunkt = assigned_variables.get("Tidspunkt")
             Dato = assigned_variables.get("Dato")
-            print(f"Dato: {Dato}")
-            #globals().update(assigned_variables)
+            StrNewDeadline = assigned_variables.get("StrNewDeadline")
 
             # ----- Run Send BomEmail -----
             Arguments_SendBomEmail = {
@@ -333,7 +335,6 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                 TaskStartDate = parser.parse(TaskStartDate)
                 #transformed_Startdate = TaskStartDate.strftime("%Y-%m-%dT00:00:00")
                 input_date = datetime.strptime(Dato, "%Y-%m-%d").date()
-                #time = "T00:00:00+00:00" 
 
                 if RykkerNummer == 1: 
                     if input_date <= date.today():
@@ -367,7 +368,7 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                         },
                         "responsibleOrgUnitId": responsibleOrgUnitId,
                         "deadline": StrDeadline,
-                        "startDate": input_date,
+                        "startDate": StrNewDeadline,
                         "taskType": taskType
                     }
                     headers = {
