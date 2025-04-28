@@ -2,7 +2,6 @@
 
 from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConnection
 import Datastore
-import subprocess
 from SendSMTPMail import send_email 
 
 def reset(orchestrator_connection: OrchestratorConnection) -> None:
@@ -112,8 +111,6 @@ def close_all(orchestrator_connection: OrchestratorConnection) -> None:
 def kill_all(orchestrator_connection: OrchestratorConnection) -> None:
     """Forcefully close all applications used by the robot."""
     orchestrator_connection.log_trace("Killing all applications.")
-    subprocess.call("taskkill /F /IM chrome.exe /T", stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
-    subprocess.call("taskkill /F /IM chromedriver.exe /T", stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
 
 
 def open_all(orchestrator_connection: OrchestratorConnection) -> None:
