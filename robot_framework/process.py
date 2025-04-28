@@ -385,6 +385,7 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
 
                 # Tilføjer sagsnummeret til listen over kørte sager: 
                 data["ListOfProcessedItems"].append(Sagsnummer)
+                Datastore.save_data(data)
 
             else:       
                 print("Dokumentet blev ikke sendt korrekt - Sagen opdateres ikke")    
