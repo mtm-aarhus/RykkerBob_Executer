@@ -118,8 +118,6 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                 FormatDate = datetime.strptime(AfgørelsesDatoFormateret, "%m/%d/%Y").strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
                 # Extracting date and time separately
                 Dato, Tidspunkt = FormatDate.split(" ")
-                # Concatenating date and time as Deadline
-                Deadline = f"{Dato}{Tidspunkt}"
                 EmailText = ("Vi har endnu ikke modtaget besked om, at dit projekt er sat i gang.\n\n"
                             "Tilladelsen bortfalder, hvis arbejdet ikke er sat i gang inden et år fra tilladelsens dato. "
                             "Dette skal meddeles via Byg og Miljø.\n\n\nMed venlig hilsen\n\nByggeri")
@@ -133,7 +131,6 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                 AfgørelsesDatoFormateret = (AfgørelsesDato + relativedelta(years=1, days=-1)).strftime("%m/%d/%Y")
                 FormatDate = datetime.strptime(AfgørelsesDatoFormateret, "%m/%d/%Y").strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
                 Dato, Tidspunkt = FormatDate.split(" ")
-                Deadline = f"{Dato} {Tidspunkt}"
                 EmailText = ("Vi har endnu ikke modtaget besked om, at dit projekt er sat i gang.\n\n"
                 "Tilladelsen bortfalder, hvis arbejdet ikke er sat i gang inden et år fra tilladelsens dato. "
                 "Dette skal meddeles via Byg og Miljø.\n\n\nMed venlig hilsen\n\nByggeri")
@@ -150,9 +147,6 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                 FormatDate = datetime.strptime(AfgørelsesDatoFormateret, "%m/%d/%Y").strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
                 # Extracting date and time separately
                 Dato, Tidspunkt = FormatDate.split(" ")
-                # Concatenating date and time as Deadline
-                Deadline = f"{Dato}{Tidspunkt}"
-                # Set Danish locale for month formatting
             
                 # Set locale to Danish for month names
                 locale.setlocale(locale.LC_TIME, "da_DK.UTF-8")
@@ -194,7 +188,6 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                 raise ValueError(f"Ugyldigt RykkerNummer: {RykkerNummer}")
 
             # Extract all needed variables with .get() to avoid KeyErrors
-            Deadline = assigned_variables.get("Deadline")
             EmailText = assigned_variables.get("EmailText")
             Title = assigned_variables.get("Title")
             Description = assigned_variables.get("Description")
@@ -203,6 +196,7 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
             BeskrivelseTilEjer = assigned_variables.get("BeskrivelseTilEjer")
             Tidspunkt = assigned_variables.get("Tidspunkt")
             Dato = assigned_variables.get("Dato")
+            print(f"Dato: {Dato}")
             #globals().update(assigned_variables)
 
             # ----- Run Send BomEmail -----
