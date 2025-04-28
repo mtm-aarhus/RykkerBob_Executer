@@ -43,7 +43,7 @@ def GetNovaCookies(orchestrator_connection: OrchestratorConnection):
         chrome_options.add_argument("--disable-extensions")
         chrome_options.add_argument("--profile-directory=Default")
         chrome_options.add_argument("--remote-debugging-port=9222")
-
+        chrome_options.add_argument('--remote-debugging-pipe')
         driver = webdriver.Chrome(options=chrome_options)
 
         print("Creating WebDriver...")
