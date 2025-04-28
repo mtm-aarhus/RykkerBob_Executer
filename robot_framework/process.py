@@ -331,15 +331,15 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                 out_DigitaltPostSendt = False
             
 
-            if out_DigitaltPostSendt:
+            if out_DocumentSendt:
                 #Opdaterer sagsbeskrivelse"
                 TaskTitel = "17. Afventer påbegyndelse"
                 taskType = "Aktivitet"
                 responsibleOrgUnitId = "0c89d77b-c86f-460f-9eaf-d238e4f451ed"
                 TaskStartDate = parser.parse(TaskStartDate)
-                transformed_Startdate = TaskStartDate.strftime("%Y-%m-%dT00:00:00")
+                #transformed_Startdate = TaskStartDate.strftime("%Y-%m-%dT00:00:00")
                 input_date = datetime.strptime(Dato, "%Y-%m-%d").date()
-                time = "T00:00:00+00:00" 
+                #time = "T00:00:00+00:00" 
 
                 if RykkerNummer == 1: 
                     if input_date <= date.today():
@@ -363,8 +363,8 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                         },
                         "uuid": Taskuuid,
                         "caseUuid": caseUuid,
-                        "title": Title,
-                        "description": BeskrivelseTilEjer,
+                        "title": TaskTitel,
+                        "description": Description,
                         "caseworker": {
                             "kspIdentity": {
                             "racfId": racfId,
