@@ -208,9 +208,13 @@ def invoke_GetCaseInfoAndCheckCaseState(Arguments_GetCaseInfoAndCheckCaseState):
                 except Exception as api_error:
                     print(f"Error occurred during API call: {api_error}")
                 Out_MissingData =True
-                data["ListOfFailedCases"].append(Sagsnummer)
-                data["ListOfErrorMessages"].append(refined_str)
-                Datastore.save_data(data)
+                if Sagsnummer not in data["ListOfFailedCases"]:
+                    data["ListOfFailedCases"].append(Sagsnummer)
+                    data["ListOfErrorMessages"].append(refined_str)
+                    Datastore.save_data(data)
+                else:
+                    print(f"Sagsnummer {Sagsnummer} is already registered as failed. Skipping append.")
+
             else:
                 Out_MissingData =False
     
