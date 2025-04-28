@@ -2,8 +2,6 @@
 
 from OpenOrchestrator.orchestrator_connection.connection import OrchestratorConnection
 import Datastore
-
-data = Datastore.load_data()
 from SendSMTPMail import send_email 
 
 def reset(orchestrator_connection: OrchestratorConnection) -> None:
@@ -16,7 +14,7 @@ def reset(orchestrator_connection: OrchestratorConnection) -> None:
 
 def Send_Finish_mail(orchestrator_connection: OrchestratorConnection) -> None:
     orchestrator_connection.log_trace("Sender mail til sagsbehandler")
-    
+    data = Datastore.load_data()
     processed_items = data["ListOfProcessedItems"]
     failed_cases = data["ListOfFailedCases"]
     error_messages = data["ListOfErrorMessages"]
