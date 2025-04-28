@@ -39,11 +39,6 @@ def invoke_SendBomEmail(Arguments_SendBomEmail,orchestrator_connection: Orchestr
     else:
         Address = f"{StreetName} {HouseNumber}"
 
-    print(f"CaseAdress er: {Address}")
-    print(f"Kmd_logon_web_session_handler{Logon_web_session_handler}")
-    print(f"Verification_token {Verification_token }")
-    print(f"Request_verification_token{Request_verification_token}")
-
     url = "https://cap-awswlbs-wm3q2021.kmd.dk/KMDNovaESDH/api/ServiceRelayer/BomCase/SendReplyToApplicant"
 
     headers = {
@@ -97,7 +92,6 @@ def invoke_SendBomEmail(Arguments_SendBomEmail,orchestrator_connection: Orchestr
     
     # Convert to JSON string
     body_str = json.dumps(body, ensure_ascii=False)
-    print(body_str)
     # Send request
     response = requests.post(url, headers=headers, cookies=cookies, data=body_str.encode("utf-8"))
     print(f"Netværkskald har status: {response.status_code}")

@@ -56,7 +56,6 @@ def GetNovaCookies(orchestrator_connection: OrchestratorConnection):
         wait.until(EC.visibility_of_element_located((By.NAME, "UserInfo.Username"))).send_keys(NovaUserName)
         wait.until(EC.visibility_of_element_located((By.NAME, "UserInfo.Password"))).send_keys(NovaPassword)
         wait.until(EC.element_to_be_clickable((By.ID, "logonBtn"))).click()
-        print("Logged into the website.")
 
         # Get Cookies
         cookies_list = driver.get_cookies()
@@ -86,7 +85,6 @@ def GetNovaCookies(orchestrator_connection: OrchestratorConnection):
         orchestrator_connection.update_credential("Kmd_logon_web_session_handler", "Logon_web_session_handler", out_kmd_logon_web_session_handler)
         orchestrator_connection.update_credential("KMD_request_verification_token", "Request_verification_token", out_request_verification_token)
 
-        print("Cookies successfully updated in Orchestrator.")
 
     except Exception as e:
         print(f"An error occurred: {e}")

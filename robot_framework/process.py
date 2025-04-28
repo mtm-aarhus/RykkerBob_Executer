@@ -375,7 +375,6 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                         "Authorization": f"Bearer {KMD_access_token}",
                         "Content-Type": "application/json"
                     }
-                    print(payload)
                     response = requests.put(url, json=payload, headers=headers)
                     print(f"API Response: {response.text}")
                     print(f"API staus: {response.status_code}")
