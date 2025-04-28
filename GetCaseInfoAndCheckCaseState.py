@@ -143,7 +143,7 @@ def invoke_GetCaseInfoAndCheckCaseState(Arguments_GetCaseInfoAndCheckCaseState):
             cadastralNumber = data["cases"][0]["buildingCase"]["propertyInformation"]["cadastralNumbers"][0]["cadastralNumber"]
             out_CadastralNumber = cadastralLetters+str(cadastralNumber)
             out_bomCasePhaseCode = data["cases"][0]["buildingCase"]["bomCaseAttributes"]["bomCasePhaseCode"]
-            out_bomCaseStateCode = data["cases"][0]["buildingCase"]["bomCaseAttributes"]["bomCaseStateCode"]
+            out_bomCaseStateCode = data["cases"][0]["buildingCase"]["bomCaseAttributes"]["bomCaseStateode"] ## denne skal rettes
             
         except (KeyError, IndexError, TypeError) as e:
             import traceback

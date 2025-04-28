@@ -27,9 +27,9 @@ def Send_Finish_mail(orchestrator_connection: OrchestratorConnection) -> None:
 
         # Build BodyMail
         BodyMail = f"""Kære Sagsbehandler,<br><br>
-            "Robotten har udsendt rykkere til følgende sager:<br><br>
+            Robotten har udsendt rykkere til følgende sager:<br><br>
             {FinalString}
-            Kontroller venligst at robotten har udført sit arbejde korrekt<br><br>
+            Kontroller venligst at robotten har udført sit arbejde korrekt.<br><br>
             Med venlig hilsen<br><br>
             Teknik og Miljø<br><br>
             Digitalisering<br><br>
