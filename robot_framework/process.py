@@ -341,14 +341,13 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                         },
                         "responsibleOrgUnitId": responsibleOrgUnitId,
                         "deadline": StrDeadline,
-                        "startDate": transformed_Startdate, # Skal ændres til original date
+                        "startDate": transformed_Startdate, 
                         "taskType": taskType
                     }
                     headers = {
                         "Authorization": f"Bearer {KMD_access_token}",
                         "Content-Type": "application/json"
                     }
-                    print(payload)
                     response = requests.put(url, json=payload, headers=headers)
                     print(f"API Response: {response.text}")
                     print(f"API staus: {response.status_code}")
@@ -411,6 +410,8 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                 Title = "17. Afventer påbegyndelse"
                 description = "Ikke BOM sag – Kræver manuel håndtering"
                 url = f"{KMDNovaURL}/Task/Update?api-version=2.0-Case"
+                TaskStartDate = parser.parse(TaskStartDate)
+                transformed_Startdate = TaskStartDate.strftime("%Y-%m-%dT00:00:00")
                 try:
                     payload = {
                         "common": {
