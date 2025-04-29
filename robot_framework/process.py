@@ -149,7 +149,8 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                 )
                 Title = "3. Rykkerskrivelse - Projektet er ikke påbegyndt"
                 Description = "Henlæg - 3. rykker er udført af robot"
-                StrDeadline = (AfgørelsesDato + timedelta(days=14)).strftime("%Y-%m-%d")
+                StrDeadline = (datetime.now() + timedelta(days=14)).strftime("%Y-%m-%dT00:00:00+00:00")
+                #StrDeadline = (AfgørelsesDato + timedelta(days=14)).strftime("%Y-%m-%d")
                 DigitalPostSendt = False
                 BeskrivelseTilEjer = "Mangler at udsende 2. orientering til ejer"
                 return locals()
