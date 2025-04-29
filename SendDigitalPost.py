@@ -37,8 +37,6 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
     year = date_obj.year
     DecisionDate = f"{day}. {month} {year}"    
     
-
-    Beskrivelse = Arguments_SendDigitalPost.get("in_Beskrivelse")
     BeskrivelseTilEjer = Arguments_SendDigitalPost.get("in_BeskrivelseTilEjer")
     Sagsnummer = Arguments_SendDigitalPost.get("in_Sagsnummer")
     Dato = Arguments_SendDigitalPost.get("in_Dato")
@@ -111,7 +109,7 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
             
     
     DocumentSendt = False
-    AarhusKommuneCVR = "5513301128"
+    AarhusKommuneCVR = "55133018"
     IsCvrAarhusKommune = False
 
     # Henter yderligere sags information: 
@@ -668,8 +666,6 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
                             date_element = driver.find_element(By.XPATH, "//label[text()='Dato']/following-sibling::div[@class='no-wrap ng-binding']")
                             found_date_string = date_element.text.strip()
                             found_date = datetime.strptime(found_date_string, "%d-%m-%Y").date()
-                            print(f"inputdate: {input_date}")
-                            print(f"Found date: {found_date} ")
                             if input_date == found_date:
                                 print("The dates match.")
                                 date_matches = True

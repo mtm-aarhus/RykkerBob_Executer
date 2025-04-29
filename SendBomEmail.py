@@ -36,9 +36,6 @@ def invoke_SendBomEmail(Arguments_SendBomEmail,orchestrator_connection: Orchestr
     else:
         Address = f"{StreetName} {HouseNumber}"
 
-    print(f"Caseadress er: {CaseAddress}")
-    print(f"Address er: {Address}")
-    
     url = "https://cap-awswlbs-wm3q2021.kmd.dk/KMDNovaESDH/api/ServiceRelayer/BomCase/SendReplyToApplicant"
 
     headers = {

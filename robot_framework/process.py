@@ -211,15 +211,13 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
             }
             CheckIfEmailSent_Output_arguments = CheckIfEmailSent.invoke_CheckIfEmailSent(Arguments_CheckIfEmailSent,orchestrator_connection)
             out_DocumentSendt = CheckIfEmailSent_Output_arguments.get("out_DocumentSendt")
-            print(out_DocumentSendt)
 
-            
+    
             if out_DocumentSendt and (RykkerNummer == 2 or RykkerNummer == 3):
                 try:
                     # ----- Run SendDigitalPost -----
                     Arguments_SendDigitalPost = {
                         "in_Afgørelsesdato": Afgørelsesdato,
-                        "in_Beskrivelse": Description,
                         "in_Sagsnummer": Sagsnummer,
                         "in_Dato": Dato,
                         "in_NovaAPIURL": KMDNovaURL,
@@ -241,7 +239,7 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                     subject = "Robot fejlede i udsendelse af digital post"
                     body = f"""Kære Udvikler,<br><br>
                     Robotten fejlede. Følgende sagsnummer fik ikke sendt digital post: {Sagsnummer} <br><br>
-                    {BeskrivelseTilEjer} via digital post ASAP! <br><br>
+                    {BeskrivelseTilEjer} via digital post! <br><br>
                     Med venlig hilsen<br><br>
                     Teknik & Miljø<br><br>
                     Digitalisering<br><br>
@@ -309,6 +307,7 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                 TaskStartDate = parser.parse(TaskStartDate)
                 #transformed_Startdate = TaskStartDate.strftime("%Y-%m-%dT00:00:00")
                 input_date = datetime.strptime(Dato, "%Y-%m-%d").date()
+    
 
                 if RykkerNummer == 1: 
                     if input_date <= date.today():
@@ -342,13 +341,14 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                         },
                         "responsibleOrgUnitId": responsibleOrgUnitId,
                         "deadline": StrDeadline,
-                        "startDate": StrNewDeadline,
+                        "startDate": TaskStartDate, # Skal ændres til original date
                         "taskType": taskType
                     }
                     headers = {
                         "Authorization": f"Bearer {KMD_access_token}",
                         "Content-Type": "application/json"
                     }
+                    print(payload)
                     response = requests.put(url, json=payload, headers=headers)
                     print(f"API Response: {response.text}")
                     print(f"API staus: {response.status_code}")
