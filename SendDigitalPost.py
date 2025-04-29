@@ -294,6 +294,7 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
     
     if BoolCVR: 
         if AarhusKommuneCVR in CVR: 
+            IsCvrAarhusKommune = True
             print("Aarhus Kommune er ejer på sagen - Sender fejlmail til Byggeri")
             #Sender error email til byggeri: 
             sender = "Rykkerbob<rpamtm001@aarhus.dk>" # Replace with actual sender
@@ -350,6 +351,7 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
                     "TaskTypeName": "Aktivitet",
                     "statusCode": "S"
                 }
+                print(payload)
                 headers = {
                     "Authorization": f"Bearer {Token}",
                     "Content-Type": "application/json"
@@ -357,6 +359,7 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
 
                 response = requests.post(url, json=payload, headers=headers)
                 print(f"API Response: {response.status_code}")
+                print(f"API Response: {response.text}")
 
             except Exception as api_error:
                 print(f"Error occurred during API call: {api_error}")
@@ -666,6 +669,7 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
                             date_element = driver.find_element(By.XPATH, "//label[text()='Dato']/following-sibling::div[@class='no-wrap ng-binding']")
                             found_date_string = date_element.text.strip()
                             found_date = datetime.strptime(found_date_string, "%d-%m-%Y").date()
+
                             if input_date == found_date:
                                 print("The dates match.")
                                 date_matches = True
