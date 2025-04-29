@@ -351,7 +351,6 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
                     "TaskTypeName": "Aktivitet",
                     "statusCode": "S"
                 }
-                print(payload)
                 headers = {
                     "Authorization": f"Bearer {Token}",
                     "Content-Type": "application/json"
@@ -404,7 +403,6 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
 
         except Exception as api_error:
             print(f"Error occurred during API call: {api_error}")
-
 
 
     else:
@@ -774,12 +772,9 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
             except: 
                 os.remove(file_path)
                 raise Exception("Dokumentet blev ikke uploaded korrekt - sletter lokal fil")  
-            
-            else: 
-                raise Exception("Dokumentet er ikke oploaded korrekt - Sender errormail")
-                    
-    print(f"Sletter: {file_path}")
-    os.remove(file_path)
+                  
+            print(f"Sletter: {file_path}")
+            os.remove(file_path)
 
     return {
         "out_Dokumentsendt": DocumentSendt,
