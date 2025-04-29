@@ -629,7 +629,7 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
                         options.add_argument('--remote-debugging-pipe')
 
                         driver = webdriver.Chrome(options=options)
-                        wait = WebDriverWait(driver, 60)
+                        wait = WebDriverWait(driver, 120)
 
                         print("Creating WebDriver...")
                         print("Navigating to URL...")
