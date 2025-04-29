@@ -43,7 +43,7 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
     KMDNovaURL = Arguments_SendDigitalPost.get("in_NovaAPIURL")
     RykkerNummer = Arguments_SendDigitalPost.get("in_RykkerNummer")
     Token = Arguments_SendDigitalPost.get("in_Token")
-    fullName = Arguments_SendDigitalPost.get("in_fullName"),
+    fullName = Arguments_SendDigitalPost.get("in_fullName")
     racfId = Arguments_SendDigitalPost.get("in_racfId")
     
     NewDate = datetime.now().strftime("%d-%m-%Y")
