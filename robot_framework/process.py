@@ -305,7 +305,7 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                 taskType = "Aktivitet"
                 responsibleOrgUnitId = "0c89d77b-c86f-460f-9eaf-d238e4f451ed"
                 TaskStartDate = parser.parse(TaskStartDate)
-                #transformed_Startdate = TaskStartDate.strftime("%Y-%m-%dT00:00:00")
+                transformed_Startdate = TaskStartDate.strftime("%Y-%m-%dT00:00:00")
                 input_date = datetime.strptime(Dato, "%Y-%m-%d").date()
     
 
@@ -341,7 +341,7 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                         },
                         "responsibleOrgUnitId": responsibleOrgUnitId,
                         "deadline": StrDeadline,
-                        "startDate": TaskStartDate, # Skal ændres til original date
+                        "startDate": transformed_Startdate, # Skal ændres til original date
                         "taskType": taskType
                     }
                     headers = {
