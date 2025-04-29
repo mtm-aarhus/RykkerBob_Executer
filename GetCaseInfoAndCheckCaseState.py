@@ -9,8 +9,6 @@ def invoke_GetCaseInfoAndCheckCaseState(Arguments_GetCaseInfoAndCheckCaseState):
     
     #Initialize variables
     caseUuid = Arguments_GetCaseInfoAndCheckCaseState.get("in_caseUuid")
-    ListOfErrorMessages = Arguments_GetCaseInfoAndCheckCaseState.get("in_ListOfErrorMessages")
-    ListOfFailedCases = Arguments_GetCaseInfoAndCheckCaseState.get("in_ListOfFailedCases")
     KMDNovaURL = Arguments_GetCaseInfoAndCheckCaseState.get("in_KMDNovaURL")
     Sagsnummer = Arguments_GetCaseInfoAndCheckCaseState.get("in_Sagsnummer")
     Token = Arguments_GetCaseInfoAndCheckCaseState.get("in_Token")
@@ -169,7 +167,6 @@ def invoke_GetCaseInfoAndCheckCaseState(Arguments_GetCaseInfoAndCheckCaseState):
                     data = Datastore.load_data()
                     split_str = error_var.split("_")[1]
                     refined_str = split_str.split(" =")[0]
-                    print(refined_str)
                     TransactionID = str(uuid.uuid4())
                     UuidMissingData = str(uuid.uuid4())
                     Aktivitetsnavn = "Nyt materiale"
@@ -246,8 +243,6 @@ def invoke_GetCaseInfoAndCheckCaseState(Arguments_GetCaseInfoAndCheckCaseState):
     "Out_HouseNumber": Out_HouseNumber,
     "out_IsBomCase": out_IsBomCase,
     "out_Kommunenummer":out_Kommunenummer,
-    "out_ListOfErrorMessages":ListOfFailedCases,
-    "out_ListOfFailedCases":ListOfFailedCases,
     "Out_MissingData":Out_MissingData,
     "Out_StreetName": Out_StreetName
     }

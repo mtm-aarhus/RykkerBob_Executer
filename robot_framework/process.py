@@ -28,15 +28,15 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
     orchestrator_connection.log_trace("Running process.")
 
     #   ---- Henter Assets ----
-    #orchestrator_connection = OrchestratorConnection("Henter Assets", os.getenv('OpenOrchestratorSQL'),os.getenv('OpenOrchestratorKey'), None)
     KMDNovaURL = orchestrator_connection.get_constant("KMDNovaURL").value
     KMD_access_token = GetKMDToken(orchestrator_connection)
     
+    # ---- Henter datastore ----
     data = Datastore.load_data()
-           #---- Henter kø-elementer ----
+ 
+   
+    # ---- Henter Kø-elementer ----
     queue = json.loads(queue_element.data)
-
-        # ---- Henter Kø-elementer ----
     Sagsnummer = queue.get("caseNumber")
     Taskuuid = queue.get("taskUuid")
     caseUuid = queue.get("caseUuid")
@@ -46,16 +46,6 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
     racfId = queue.get("racfId")
     RykkerNummer = queue.get("RykkerNummer")
 
-
-    #     # ---- Henter Kø-elementer ----
-    # Sagsnummer = "S2021-456011"
-    # Taskuuid = "a56f6298-0a23-408e-bd26-e01808907c28"
-    # caseUuid = "9c60ce1c-5f57-44ab-b805-44800017000c"
-    # TaskStartDate = "2025-02-18T13:23:10.9487697+01:00"
-    # TaskDeadline = "2025-02-18T01:00:00+01:00"
-    # fullName = "Maria Møller Sørensen"
-    # racfId = "AZ52140"
-    # RykkerNummer = 1
 
     orchestrator_connection.log_info(f"Sagsnummer: {Sagsnummer}")
     orchestrator_connection.log_info(f"Taskuuid: {Taskuuid}")
@@ -68,8 +58,6 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
     # ----- Run GetCaseInfoAndCheckCaseState -----
     Arguments_GetCaseInfoAndCheckCaseState = {
         "in_caseUuid": caseUuid,
-        "in_ListOfErrorMessages": [],
-        "in_ListOfFailedCases": [],
         "in_KMDNovaURL": KMDNovaURL,
         "in_Sagsnummer": Sagsnummer,
         "in_Token": KMD_access_token,
@@ -90,8 +78,6 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
     HouseNumber = GetCaseInfoAndCheckCaseState_Output_arguments.get("Out_HouseNumber")
     IsBomCase = GetCaseInfoAndCheckCaseState_Output_arguments.get("out_IsBomCase")
     Kommunenummer = GetCaseInfoAndCheckCaseState_Output_arguments.get("out_Kommunenummer")
-    ListOfErrorMessages = GetCaseInfoAndCheckCaseState_Output_arguments.get("ListOfFailedCases") #bruges disse her?
-    ListOfFailedCases = GetCaseInfoAndCheckCaseState_Output_arguments.get("ListOfFailedCases")#bruges disse her?
     MissingData = GetCaseInfoAndCheckCaseState_Output_arguments.get("Out_MissingData")
     StreetName = GetCaseInfoAndCheckCaseState_Output_arguments.get("Out_StreetName")
     if MissingData: 
@@ -112,12 +98,9 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
             Dato = None
 
             def case_1():
-                # One-liner date formatting & calculations
                 AfgørelsesDato = datetime.strptime(Afgørelsesdato,"%Y-%m-%dT%H:%M:%S")
                 AfgørelsesDatoFormateret = (AfgørelsesDato + relativedelta(years=1, days=-1)).strftime("%m/%d/%Y")
                 FormatDate = datetime.strptime(AfgørelsesDatoFormateret, "%m/%d/%Y").strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
-                
-                # Extracting date and time separately
                 Dato, Tidspunkt = FormatDate.split(" ")
                 StrNewDeadline = (AfgørelsesDato + relativedelta(years=1, days=-1)).strftime("%Y-%m-%dT") + "00:00:00"
                 EmailText = ("Vi har endnu ikke modtaget besked om, at dit projekt er sat i gang.\n\n"
@@ -127,7 +110,7 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                 Description = "Rykkerskrivelse udført af robot"
                 StrDeadline = (AfgørelsesDato + timedelta(days=44*7)).strftime("%Y-%m-%d")
                 DigitalPostSendt = True
-                return locals()  # Return all variables as a dictionary
+                return locals()  
             def case_2():
                 AfgørelsesDato = datetime.strptime(Afgørelsesdato,"%Y-%m-%dT%H:%M:%S")
                 AfgørelsesDatoFormateret = (AfgørelsesDato + relativedelta(years=1, days=-1)).strftime("%m/%d/%Y")
@@ -144,20 +127,13 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                 BeskrivelseTilEjer = "Mangler at udsende 1. orientering til ejer"
                 return locals()
             def case_3():
-                # One-liner date formatting & calculations
                 AfgørelsesDato = datetime.strptime(Afgørelsesdato,"%Y-%m-%dT%H:%M:%S")
                 AfgørelsesDatoFormateret = (AfgørelsesDato + relativedelta(years=1, days=-1)).strftime("%m/%d/%Y")
                 FormatDate = datetime.strptime(AfgørelsesDatoFormateret, "%m/%d/%Y").strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
-                # Extracting date and time separately
                 Dato, Tidspunkt = FormatDate.split(" ")
                 StrNewDeadline = (AfgørelsesDato + relativedelta(years=1, days=-1)).strftime("%Y-%m-%dT") + "00:00:00"
-                # Set locale to Danish for month names
                 locale.setlocale(locale.LC_TIME, "da_DK.UTF-8")
-
-                # Format the date in the desired format: "dd. MMMM yyyy"
                 DayDate = AfgørelsesDato.strftime("%d. %B %Y")
-
-                # Email text with proper newlines
                 EmailText = (
                     f"Den {DayDate} har du fået byggetilladelse til ovennævnte byggeri.\n\n"
                     f"Tilladelsen blev bl.a. givet på vilkår af, at vi skulle have besked, når byggeriet blev påbegyndt. "
@@ -171,7 +147,6 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                     f"Med venlig hilsen\n\n"
                     f"Byggeri"
                 )
-                # Title
                 Title = "3. Rykkerskrivelse - Projektet er ikke påbegyndt"
                 Description = "Henlæg - 3. rykker er udført af robot"
                 StrDeadline = (AfgørelsesDato + timedelta(days=14)).strftime("%Y-%m-%d")
@@ -220,7 +195,6 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                 "in_EmailText": EmailText,
                 "in_Title": Title
             }
-
 
 
             SendBomEmail_Output_arguments = SendBomEmail.invoke_SendBomEmail(Arguments_SendBomEmail,orchestrator_connection)

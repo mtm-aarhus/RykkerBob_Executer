@@ -21,9 +21,6 @@ def invoke_SendBomEmail(Arguments_SendBomEmail,orchestrator_connection: Orchestr
     EmailText = Arguments_SendBomEmail.get("in_EmailText")
     Title = Arguments_SendBomEmail.get("in_Title")
 
-
-    print(BomCaseType)
-    print(Sagsnummer)
     KMD_verification_token = orchestrator_connection.get_credential("Kmd_verification_token")
     Verification_token = KMD_verification_token.password
     
@@ -39,6 +36,9 @@ def invoke_SendBomEmail(Arguments_SendBomEmail,orchestrator_connection: Orchestr
     else:
         Address = f"{StreetName} {HouseNumber}"
 
+    print(f"Caseadress er: {CaseAddress}")
+    print(f"Address er: {Address}")
+    
     url = "https://cap-awswlbs-wm3q2021.kmd.dk/KMDNovaESDH/api/ServiceRelayer/BomCase/SendReplyToApplicant"
 
     headers = {
