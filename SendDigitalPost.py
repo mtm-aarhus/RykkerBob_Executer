@@ -520,13 +520,9 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
 
                     response = requests.post(url, json=payload, headers=headers)
                     print(f"API status: {response.status_code}")
-                    print(f"API Response: {response.text}")
-
 
                 except Exception as api_error:
                     print(f"Error occurred during API call: {api_error}")
-
-
 
             except: 
                 print("Sletter lokal fil")
@@ -562,7 +558,6 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
 
                     response = requests.put(url, json=payload, headers=headers)
                     print(f"API status: {response.status_code}")
-                    print(f"API Response: {response.text}")
                 except requests.exceptions.RequestException as e:
                     raise Exception(f"API request failed: {e}")
                 
