@@ -697,14 +697,14 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
                                     wait.until(EC.visibility_of_element_located((By.ID, "viewModel_NewRecipient"))).send_keys(CPR)
                                     time.sleep(3)
                                     actions.send_keys(Keys.ENTER).perform()
-                                    #wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.btn-dialog-primary.test-send"))).click()
+                                    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.btn-dialog-primary.test-send"))).click()
                                 elif BoolCVR:
                                     print("CVR-nummer anvendes")
                                     actions.send_keys(Keys.DOWN).send_keys(Keys.DOWN).send_keys(Keys.ENTER).perform()
                                     wait.until(EC.visibility_of_element_located((By.ID, "viewModel_NewRecipient"))).send_keys(CVR)
                                     time.sleep(3)
                                     actions.send_keys(Keys.ENTER).perform()
-                                    #wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.btn-dialog-primary.test-send"))).click()
+                                    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.btn-dialog-primary.test-send"))).click()
                                 else:
                                     raise Exception("Business Rule Exception: Det er hverken et CPR eller CVR nummer")
 
