@@ -714,6 +714,8 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
                             raise Exception("Business Rule Exception: Date does not match.")
 
                         # Clean up
+                        print("Waiting 10 seconds before closing the browser...")
+                        time.sleep(10)
                         driver.quit()
 
                     except Exception as ex:
