@@ -92,7 +92,7 @@ def invoke_SendBomEmail(Arguments_SendBomEmail,orchestrator_connection: Orchestr
     # Send request
     response = requests.post(url, headers=headers, cookies=cookies, data=body_str.encode("utf-8"))
     print(f"Netværkskald har status: {response.status_code}")
-    time.sleep(10)
+    time.sleep(30)
     return{
         "out_text": "Bom besked sendt"
         }
