@@ -222,19 +222,25 @@ def invoke_GetCaseInfoAndCheckCaseState(Arguments_GetCaseInfoAndCheckCaseState):
         
         raise Exception("Sagen er lukket, fortsætter til næste QueueItem")
     
-    return {
+    result =  {
     "out_AfgørelsesDato": out_AfgørelsesDato,
-    "out_BomCaseId":out_BomCaseId,
-    "out_bomCasePhaseCode":out_bomCasePhaseCode,
-    "out_bomCaseStateCode":out_bomCaseStateCode,
-    "out_BomCaseType":out_BomCaseType,
-    "out_BomCaseTypeCode": out_BomCaseTypeCode,
-    "out_BomNumber": out_BomNumber,
     "out_CadastralNumber":out_CadastralNumber,
     "out_CaseAddress":out_CaseAddress,
-    "Out_HouseNumber": Out_HouseNumber,
     "out_IsBomCase": out_IsBomCase,
-    "out_Kommunenummer":out_Kommunenummer,
-    "Out_MissingData":Out_MissingData,
-    "Out_StreetName": Out_StreetName
+    "out_Kommunenummer": out_Kommunenummer
     }
+
+    if out_IsBomCase:
+        result.update({
+            "out_BomCaseId": out_BomCaseId,
+            "Out_HouseNumber": Out_HouseNumber,
+            "out_bomCasePhaseCode": out_bomCasePhaseCode,
+            "out_bomCaseStateCode": out_bomCaseStateCode,
+            "out_BomCaseType": out_BomCaseType,
+            "out_BomCaseTypeCode": out_BomCaseTypeCode,
+            "out_BomNumber": out_BomNumber,
+            "Out_MissingData":Out_MissingData,
+            "Out_StreetName": Out_StreetName
+        })
+
+    return result
