@@ -18,19 +18,11 @@ def invoke_GetCaseInfoAndCheckCaseState(Arguments_GetCaseInfoAndCheckCaseState):
 
     # Functioner: 
     def check_bom_case(data):
-        # Iterate through cases
         for case in data.get("cases", []):
-            building_case = case.get("buildingCase", {})
-            bom_case_attributes = building_case.get("bomCaseAttributes")
-            
-            if bom_case_attributes is None:
-                out_IsBomCase = False
-                print("Sagen er ikke tilknyttet BOM - derfor assignes out_IsBomCase til:", out_IsBomCase)
-            else:
-                out_IsBomCase = True
-                print("Sagen er tilknyttet BOM - derfor assignes out_IsBomCase til:", out_IsBomCase)
-            
+            out_IsBomCase = bool(case.get("buildingCase", {}).get("bomCaseAttributes", {}).get("bomCaseId"))
+            print("out_IsBomCase set to:", out_IsBomCase)
             return out_IsBomCase
+
 
     # --- Henter sagsinfor ---- 
         # ---- Henter Sagsnummer og Sagsbeskrivelse ---- 
