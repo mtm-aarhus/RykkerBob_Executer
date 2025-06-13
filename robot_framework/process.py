@@ -414,7 +414,7 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                 TaskStartDate = parser.parse(TaskStartDate)
                 transformed_Startdate = TaskStartDate.strftime("%Y-%m-%dT00:00:00")
                 TaskDeadline = parser.parse(TaskDeadline)
-                transformed_Deadline = TaskDeadline.strftime("%Y-%m-%dT00:00:00")
+                transformed_Deadline = TaskDeadline.strftime("%Y-%m-%dT00:00:00+00:00")
 
 
                 try:
@@ -441,7 +441,7 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                         "Authorization": f"Bearer {KMD_access_token}",
                         "Content-Type": "application/json"
                     }
-
+                    print(payload)
                     response = requests.put(url, json=payload, headers=headers)
                     print(f"API Response: {response.text}")
                     print(f"API staus: {response.status_code}")
