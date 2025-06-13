@@ -413,6 +413,10 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                 url = f"{KMDNovaURL}/Task/Update?api-version=2.0-Case"
                 TaskStartDate = parser.parse(TaskStartDate)
                 transformed_Startdate = TaskStartDate.strftime("%Y-%m-%dT00:00:00")
+                TaskDeadline = parser.parse(TaskDeadline)
+                transformed_Deadline = TaskDeadline.strftime("%Y-%m-%dT00:00:00")
+
+
                 try:
                     payload = {
                         "common": {
@@ -428,7 +432,7 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                                 "fullName": fullName,
                             }
                         },
-                        "deadline": TaskDeadline,
+                        "deadline": transformed_Deadline,
                         "startDate": TaskStartDate,
                         "taskType": "Aktivitet"
                         }
