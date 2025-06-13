@@ -86,6 +86,7 @@ def invoke_GetCaseInfoAndCheckCaseState(Arguments_GetCaseInfoAndCheckCaseState):
         response.raise_for_status()
         data = response.json()
         print("Success:", response.status_code)
+        print(data)
     except Exception as e:
         raise Exception("Kunne ikke hente sagsinfo:", str(e))
 
