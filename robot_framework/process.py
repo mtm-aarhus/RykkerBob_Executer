@@ -433,7 +433,7 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
                             }
                         },
                         "deadline": transformed_Deadline,
-                        "startDate": TaskStartDate,
+                        "startDate": transformed_Startdate,
                         "taskType": "Aktivitet"
                         }
                     
