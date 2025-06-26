@@ -117,6 +117,7 @@ def invoke_GetCaseInfoAndCheckCaseState(Arguments_GetCaseInfoAndCheckCaseState):
     NumberOfRows = data["pagingInformation"]["numberOfRows"]
 
     if out_IsBomCase:
+        print("Entered BOM case block")
         try: 
             out_AfgørelsesDato = data["cases"][0]["buildingCase"]["buildingCaseAttributes"]["applicationStatusDates"]["decisionDate"]
             out_CaseAddress = data["cases"][0]["buildingCase"]["propertyInformation"]["caseAddress"]
@@ -137,7 +138,7 @@ def invoke_GetCaseInfoAndCheckCaseState(Arguments_GetCaseInfoAndCheckCaseState):
             print(f"CaseAddress: {out_CaseAddress}")
             print(f"cadastralLetters: {cadastralLetters}")
             print(f"Number: {cadastralNumber}")
-            
+
         except (KeyError, IndexError, TypeError) as e:
             import traceback
 
@@ -211,12 +212,23 @@ def invoke_GetCaseInfoAndCheckCaseState(Arguments_GetCaseInfoAndCheckCaseState):
                 Out_MissingData =False
     
     else:
-        out_AfgørelsesDato = data["cases"][0]["buildingCase"]["buildingCaseAttributes"]["applicationStatusDates"]["decisionDate"]
-        out_CaseAddress = data["cases"][0]["buildingCase"]["propertyInformation"]["caseAddress"]
-        out_Kommunenummer = data["cases"][0]["common"]["municipalityNumber"]
-        cadastralLetters = data["cases"][0]["buildingCase"]["propertyInformation"]["cadastralNumbers"][0]["cadastralLetters"]
-        cadastralNumber = data["cases"][0]["buildingCase"]["propertyInformation"]["cadastralNumbers"][0]["cadastralNumber"]
-        out_CadastralNumber = cadastralLetters+str(cadastralNumber)
+        print("Entered NON-BOM case block")
+        try:
+            case = data["cases"][0]
+            bc = case["buildingCase"]
+            pi = bc["propertyInformation"]
+            bca = bc["buildingCaseAttributes"]
+
+            out_AfgørelsesDato = bca["applicationStatusDates"]["decisionDate"]
+            out_CaseAddress = pi["caseAddress"]
+            out_Kommunenummer = case["common"]["municipalityNumber"]
+            cadastral = pi["cadastralNumbers"][0]
+            cadastralLetters = cadastral["cadastralLetters"]
+            cadastralNumber = cadastral["cadastralNumber"]
+            out_CadastralNumber = cadastralLetters + str(cadastralNumber)
+            print(f"Extracted NON-BOM cadastral number: {out_CadastralNumber}")
+        except Exception as e:
+            print("Error extracting NON-BOM case data:", e)
 
 
     if NumberOfRows > 0: 
