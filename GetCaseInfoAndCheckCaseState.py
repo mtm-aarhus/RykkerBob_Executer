@@ -140,76 +140,68 @@ def invoke_GetCaseInfoAndCheckCaseState(Arguments_GetCaseInfoAndCheckCaseState):
             print(f"Number: {cadastralNumber}")
 
         except (KeyError, IndexError, TypeError) as e:
+            print("❌ Failed to extract BOM case data:", e)
+            # Get variable that caused error from traceback
             import traceback
-
-            # Get the most recent traceback
             tb = traceback.extract_tb(e.__traceback__)
-
-            # Find the variable name that caused the error
             error_var = None
             for frame in tb:
                 if "out_" in frame.line:
                     error_var = frame.line.strip()
                     break
 
-            # Format error message
             if error_var:
-                error_message = f"Processen fejlede ved variablen: {error_var} med fejlen: {type(e).__name__} - {e}"
-            else:
-                error_message = f"Processen fejlede: {type(e).__name__} - {e}"
-        
-            # If the error message contains "out_", extract relevant part
-            if "out_" in error_message:
                 try:
-                    data = Datastore.load_data()
-                    split_str = error_var.split("_")[1]
-                    refined_str = split_str.split(" =")[0]
-                    TransactionID = str(uuid.uuid4())
-                    UuidMissingData = str(uuid.uuid4())
-                    Aktivitetsnavn = "Nyt materiale"
-                    BeskrivelseManglerData = f"Mangler følgende datakilde: {refined_str}"
-                    StartDato = datetime.now().strftime("%Y-%m-%dT%H:%M:%S+00:00")
-
-                    url = f"{KMDNovaURL}/Task/Import?api-version=2.0-Case"
-
-                    payload = {
-                        "common": {
-                            "transactionId": TransactionID,
-                            "uuid": UuidMissingData
-                        },
-                        "caseUuid": caseUuid,
-                        "title": Aktivitetsnavn,
-                        "description": BeskrivelseManglerData,
-                        "caseworker": {
-                            "kspIdentity": {
-                                "racfId": racfId,
-                                "fullName": fullName,
-                            }
-                        },
-                        "startDate": StartDato,
-                        "TaskTypeName": "Aktivitet",
-                        "statusCode": "S"
-                    }
-                    headers = {
-                        "Authorization": f"Bearer {Token}",
-                        "Content-Type": "application/json"
-                    }
-
-                    response = requests.post(url, json=payload, headers=headers)
-                    print(f"API Response: {response.status_code}")
-
-                except Exception as api_error:
-                    print(f"Error occurred during API call: {api_error}")
-                Out_MissingData =True
-                if Sagsnummer not in data["ListOfFailedCases"]:
-                    data["ListOfFailedCases"].append(Sagsnummer)
-                    data["ListOfErrorMessages"].append(refined_str)
-                    Datastore.save_data(data)
-                else:
-                    print(f"Sagsnummer {Sagsnummer} is already registered as failed. Skipping append.")
-
+                    split_str = error_var.split("_")[1]  # e.g. "CadastralNumber = ..."
+                    refined_str = split_str.split(" =")[0]  # -> "CadastralNumber"
+                except Exception:
+                    refined_str = "UkendtData"
             else:
-                Out_MissingData =False
+                refined_str = "UkendtData"
+
+            # Fallback API call to report missing data
+            try:
+                data_store = Datastore.load_data()
+                TransactionID = str(uuid.uuid4())
+                UuidMissingData = str(uuid.uuid4())
+                StartDato = datetime.now().strftime("%Y-%m-%dT%H:%M:%S+00:00")
+
+                payload = {
+                    "common": {
+                        "transactionId": TransactionID,
+                        "uuid": UuidMissingData
+                    },
+                    "caseUuid": caseUuid,
+                    "title": "Nyt materiale",
+                    "description": f"Mangler følgende datakilde: {refined_str}",
+                    "caseworker": {
+                        "kspIdentity": {
+                            "racfId": racfId,
+                            "fullName": fullName,
+                        }
+                    },
+                    "startDate": StartDato,
+                    "TaskTypeName": "Aktivitet",
+                    "statusCode": "S"
+                }
+
+                task_url = f"{KMDNovaURL}/Task/Import?api-version=2.0-Case"
+                task_response = requests.post(task_url, json=payload, headers=headers)
+                print(f"📨 Missing data API call made, status: {task_response.status_code}")
+
+                Out_MissingData = True
+                if Sagsnummer not in data_store["ListOfFailedCases"]:
+                    data_store["ListOfFailedCases"].append(Sagsnummer)
+                    data_store["ListOfErrorMessages"].append(refined_str)
+                    Datastore.save_data(data_store)
+                else:
+                    print(f"Sagsnummer {Sagsnummer} already registered")
+
+            except Exception as api_error:
+                print("⚠️ Error during fallback API call:", api_error)
+
+            # 🚫 Stop further execution
+            raise Exception(f"Missing data field '{refined_str}' could not be extracted. Process stopped.")
     
     else:
         print("Entered NON-BOM case block")
@@ -237,6 +229,7 @@ def invoke_GetCaseInfoAndCheckCaseState(Arguments_GetCaseInfoAndCheckCaseState):
     else: 
         
         raise Exception("Sagen er lukket, fortsætter til næste QueueItem")
+    
     
     result =  {
     "out_AfgørelsesDato": out_AfgørelsesDato,
