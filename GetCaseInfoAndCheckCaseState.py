@@ -134,6 +134,10 @@ def invoke_GetCaseInfoAndCheckCaseState(Arguments_GetCaseInfoAndCheckCaseState):
             out_bomCaseStateCode = data["cases"][0]["buildingCase"]["bomCaseAttributes"]["bomCaseStateCode"]
 
             print(f"Casedradralnumber: {out_CadastralNumber}")
+            print(f"CaseAddress: {out_CaseAddress}")
+            print(f"cadastralLetters: {cadastralLetters}")
+            print(f"Number: {cadastralNumber}")
+            
         except (KeyError, IndexError, TypeError) as e:
             import traceback
 
