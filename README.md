@@ -1,61 +1,90 @@
-# Robot-Framework V3
 
-This repo is meant to be used as a template for robots made for [OpenOrchestrator](https://github.com/itk-dev-rpa/OpenOrchestrator).
+# 📄 README
 
-## Quick start
+## RykkerRobot for KMD Nova
 
-1. To use this template simply use this repo as a template (see [Creating a repository from a template](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template)).
-__Don't__ include all branches.
+**RykkerRobot** is an advanced automation for **Teknik og Miljø, Aarhus Kommune**. It manages overdue building cases in KMD Nova by generating reminders (rykkere), sending digital post, updating case tasks, and notifying stakeholders—all without manual intervention.
 
-2. Go to `robot_framework/__main__.py` and choose between the linear framework or queue based framework.
+---
 
-3. Implement all functions in the files:
-    * `robot_framework/initialize.py`
-    * `robot_framework/reset.py`
-    * `robot_framework/process.py`
+## 🚀 Features
 
-4. Change `config.py` to your needs.
+✅ **KMD Nova Integration**
+- Fetches active cases via REST API
+- Retrieves and refreshes OAuth tokens automatically
 
-5. Fill out the dependencies in the `pyproject.toml` file with all packages needed by the robot.
+🧾 **Case Classification**
+- Checks case types (BOM and non-BOM)
+- Extracts property information, cadastral numbers, and statuses
 
-6. Feel free to add more files as needed. Remember that any additional python files must
-be located in the folder `robot_framework` or a subfolder of it.
+📤 **Automated Document Generation & Delivery**
+- Dynamically fills Word templates with case data
+- Uploads and registers documents in KMD Nova
+- Sends Digital Post to owners (CPR/ CVR)
 
-When the robot is run from OpenOrchestrator the `main.py` file is run which results
-in the following:
-1. The working directory is changed to where `main.py` is located.
-2. A virtual environment is automatically setup with the required packages.
-3. The framework is called passing on all arguments needed by [OpenOrchestrator](https://github.com/itk-dev-rpa/OpenOrchestrator).
+📧 **Notifications & Fallbacks**
+- Notifies developers by email if errors occur
+- Alerts caseworkers if owner is Aarhus Kommune or data is missing
 
-## Requirements
-Minimum python version 3.10
+🔄 **Queue Dispatching**
+- Creates queue items for each case that needs further processing
 
-## Flow
+🔐 **Credential Management**
+- All tokens, credentials, and cookies are stored securely via OpenOrchestrator
 
-This framework contains two different flows: A linear and a queue based.
-You should only ever use one at a time. You choose which one by going into `robot_framework/__main__.py`
-and uncommenting the framework you want. They are both disabled by default and an error will be
-raised to remind you if you don't choose.
+---
 
-### Linear Flow
+## 🧭 Process Flow
 
-The linear framework is used when a robot is just going from A to Z without fetching jobs from an
-OpenOrchestrator queue.
-The flow of the linear framework is sketched up in the following illustration:
+1. **Token Management**
+   - Checks if KMD token is expired and refreshes if needed (`GetKmdAcessToken.py`)
+2. **Case Discovery**
+   - Queries KMD Nova for cases with specific statuses (`process.py`)
+   - Classifies each case to determine the rykker number
+   - Creates queue items for dispatching
+3. **Case Data Enrichment**
+   - Retrieves detailed case metadata (`GetCaseInfoAndCheckCaseState.py`)
+   - Identifies BOM cases and extracts cadastral and property data
+4. **Document Creation**
+   - Populates Word templates with relevant information
+   - Saves files locally
+5. **Document Upload**
+   - Uploads files to KMD Nova and registers metadata
+6. **Digital Post Dispatch**
+   - Sends Digital Post to the property owner via Nova web interface
+   - Optionally marks document as confidential if address protection is detected
+7. **Validation & Cleanup**
+   - Verifies document delivery
+   - Deletes temporary files
+8. **Error Handling**
+   - Emails developers on failures
+   - Logs missing data back into the Nova case
 
-![Linear Flow diagram](Robot-Framework.svg)
+---
 
-### Queue Flow
+## 🔐 Privacy & Security
 
-The queue framework is used when the robot is doing multiple bite-sized tasks defined in an
-OpenOrchestrator queue.
-The flow of the queue framework is sketched up in the following illustration:
+- All API communication uses HTTPS
+- Credentials are stored securely in OpenOrchestrator
+- Personal data (CPR/ CVR) is only handled in memory
+- Temporary files are deleted after processing
 
-![Queue Flow diagram](Robot-Queue-Framework.svg)
+---
 
-## Linting and Github Actions
+## ⚙️ Dependencies
 
-This template is also setup with flake8 and pylint linting in Github Actions.
-This workflow will trigger whenever you push your code to Github.
-The workflow is defined under `.github/workflows/Linting.yml`.
+- Python 3.10+
+- `selenium`
+- `requests`
+- `pandas`
+- `pyodbc`
+- `python-docx`
+- `python-Levenshtein`
+- `smtplib` (standard library)
 
+---
+
+## 👷 Maintainer
+
+Gustav Chatterton  
+*Digital udvikling, Teknik og Miljø, Aarhus Kommune*
