@@ -44,7 +44,7 @@ def Send_Finish_mail(orchestrator_connection: OrchestratorConnection) -> None:
 
         # Call the send_email function
         send_email(
-            receiver="Gujc@aarhus.dk",
+            receiver=["Gujc@aarhus.dk", "louras@aarhus.dk"],
             sender=sender,
             subject=subject,
             body=BodyMail,
