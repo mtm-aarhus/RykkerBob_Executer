@@ -146,7 +146,7 @@ def invoke_GetCaseInfoAndCheckCaseState(Arguments_GetCaseInfoAndCheckCaseState):
             tb = traceback.extract_tb(e.__traceback__)
             error_var = None
             for frame in tb:
-                if "out_" in frame.line:
+                if "out_" in frame.line.lower():
                     error_var = frame.line.strip()
                     break
 
