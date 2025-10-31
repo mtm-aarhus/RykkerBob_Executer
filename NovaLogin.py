@@ -66,7 +66,7 @@ def GetNovaCookies(orchestrator_connection: OrchestratorConnection):
                     return cookie['value']
             return None
 
-        out_verification_token = get_cookie_value(cookies_list, "__RequestVerificationToken_L0tNRE5vdmFFU0RI0")
+        out_verification_token = get_cookie_value(cookies_list, "__RequestVerificationToken")
         out_kmd_logon_web_session_handler = get_cookie_value(cookies_list, "KMDLogonWebSessionHandler")
 
         elements = driver.find_elements(By.XPATH, "/html/body/input[1]")
