@@ -57,7 +57,7 @@ def invoke_SendBomEmail(Arguments_SendBomEmail,orchestrator_connection: Orchestr
 
     cookies = {
         "kmdNovaIndstillingerCurrent": "MTM-Byggeri",
-        "__RequestVerificationToken_L0tNRE5vdmFFU0RI0": Verification_token,
+        "__RequestVerificationToken": Verification_token,
         "KMDLogonWebSessionHandler": Logon_web_session_handler
     }
 
