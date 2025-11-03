@@ -7,6 +7,21 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import time
+from selenium.common.exceptions import TimeoutException
+
+
+def wait_for_cookie(driver, cookie_name, timeout=10, poll_frequency=0.5):
+    """
+    Waits for a cookie with the given name to appear in the browser.
+    """
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        cookie = driver.get_cookie(cookie_name)
+        if cookie and 'value' in cookie:
+            return cookie['value']
+        time.sleep(poll_frequency)
+    raise TimeoutException(f"Cookie '{cookie_name}' not found within {timeout} seconds")
 
 
 def GetNovaCookies(orchestrator_connection: OrchestratorConnection):
@@ -49,17 +64,13 @@ def GetNovaCookies(orchestrator_connection: OrchestratorConnection):
     # Get Cookies
     cookies_list = driver.get_cookies()
     print(cookies_list)
-    def get_cookie_value(cookies, name):
-        for cookie in cookies:
-            if cookie['name'] == name:
-                return cookie['value']
-        return None
+
 
     orchestrator_connection.log_info("RequestVerificationToken")
-    out_verification_token = get_cookie_value(cookies_list, "__RequestVerificationToken")
+    out_verification_token = wait_for_cookie(driver, "__RequestVerificationToken", timeout=60)
     orchestrator_connection.log_info("KMDLogonWebSessionHandler")
 
-    out_kmd_logon_web_session_handler = get_cookie_value(cookies_list, "KMDLogonWebSessionHandler")
+    out_kmd_logon_web_session_handler = wait_for_cookie(driver, "KMDLogonWebSessionHandler", timeout=60)
 
     orchestrator_connection.log_info("ngc-request")
 
