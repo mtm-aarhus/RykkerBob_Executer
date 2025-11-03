@@ -22,7 +22,7 @@ def GetNovaCookies(orchestrator_connection: OrchestratorConnection):
     chrome_user_data_path = os.path.join(app_data_path, "Google", "Chrome", "User Data")
 
     chrome_options = Options()
-    chrome_options.add_argument("--headless=new")
+    #chrome_options.add_argument("--headless=new")
     chrome_options.add_argument(f"--user-data-dir={chrome_user_data_path}")
     chrome_options.add_argument("--window-size=1920,900")
     chrome_options.add_argument("--start-maximized")
@@ -35,7 +35,7 @@ def GetNovaCookies(orchestrator_connection: OrchestratorConnection):
 
     orchestrator_connection.log_info("Opening NOVA")
     print("Creating WebDriver...")
-    driver.get("https://cap-wsswlbs-wm3q2021.kmd.dk/KMD.YH.KMDLogonWEB.NET/AspSson.aspx?KmdLogon_sApplCallback=https://cap-awswlbs-wm3q2021.kmd.dk/KMDNovaESDH/forside&KMDLogon_sProtocol=tcpip&KMDLogon_sApplPrefix=--&KMDLogon_sOrigin=ApplAsp&ExtraData=true")
+    driver.get("https://kmdnova.dk")
     driver.maximize_window()
 
     wait = WebDriverWait(driver, 10)
@@ -48,15 +48,20 @@ def GetNovaCookies(orchestrator_connection: OrchestratorConnection):
     orchestrator_connection.log_info("Getting cookies")
     # Get Cookies
     cookies_list = driver.get_cookies()
-
+    print(cookies_list)
     def get_cookie_value(cookies, name):
         for cookie in cookies:
             if cookie['name'] == name:
                 return cookie['value']
         return None
 
+    orchestrator_connection.log_info("RequestVerificationToken")
     out_verification_token = get_cookie_value(cookies_list, "__RequestVerificationToken")
+    orchestrator_connection.log_info("KMDLogonWebSessionHandler")
+
     out_kmd_logon_web_session_handler = get_cookie_value(cookies_list, "KMDLogonWebSessionHandler")
+
+    orchestrator_connection.log_info("ngc-request")
 
     elements = driver.find_elements(By.XPATH, "/html/body/input[1]")
     out_request_verification_token = None
