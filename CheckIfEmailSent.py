@@ -144,7 +144,7 @@ def invoke_CheckIfEmailSent(Arguments_CheckIfEmailSent,orchestrator_connection: 
 
         # Call the send_email function
         send_email(
-            receiver="Gujc@aarhus.dk",
+            receiver="rpamtm001@aarhus.dk",
             sender=sender,
             subject=subject,
             body=body,
