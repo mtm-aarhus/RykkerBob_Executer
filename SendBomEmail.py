@@ -36,14 +36,14 @@ def invoke_SendBomEmail(Arguments_SendBomEmail,orchestrator_connection: Orchestr
     else:
         Address = f"{StreetName} {HouseNumber}"
 
-    url = "https://cap-awswlbs-wm3q2021.kmd.dk/KMDNovaESDH/api/ServiceRelayer/BomCase/SendReplyToApplicant"
+    url = "https://kmdnova.dk/api/ServiceRelayer/BomCase/SendReplyToApplicant"
 
     headers = {
         "Accept": "application/json, text/plain, */*",
         "Accept-Language": "en-US,en;q=0.9",
         "Connection": "keep-alive",
         "Content-Type": "application/json;charset=UTF-8",
-        "Origin": "https://cap-awswlbs-wm3q2021.kmd.dk",
+        "Origin": "https://kmdnova.dk",
         "RequestVerificationToken": Request_verification_token,
         "Sec-Fetch-Dest": "empty",
         "Sec-Fetch-Mode": "cors",

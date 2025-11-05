@@ -18,7 +18,7 @@ import SendBomEmail
 import CheckIfEmailSent 
 import SendDigitalPost
 #   ---- Henter Assets ----
-orchestrator_connection = OrchestratorConnection("Henter Assets", os.getenv('OpenOrchestratorSQL'),os.getenv('OpenOrchestratorKey'), None)
+orchestrator_connection = OrchestratorConnection("RykkerBob_Executer", os.getenv('OpenOrchestratorSQL'),os.getenv('OpenOrchestratorKey'), None)
 KMDNovaURL = orchestrator_connection.get_constant("KMDNovaURL").value
 KMD_access_token = GetKMDToken(orchestrator_connection)
 #GetNovaCookies(orchestrator_connection)
