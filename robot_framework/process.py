@@ -82,6 +82,7 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
     StreetName = GetCaseInfoAndCheckCaseState_Output_arguments.get("Out_StreetName")
     if MissingData: 
         print("Sagen mangler data, og tilføjes derfor til listen over fejlede sager.")
+        return  # 👈 THIS skips the rest safely
 
     else: 
         if IsBomCase: 

@@ -200,8 +200,12 @@ def invoke_GetCaseInfoAndCheckCaseState(Arguments_GetCaseInfoAndCheckCaseState):
             except Exception as api_error:
                 print("⚠️ Error during fallback API call:", api_error)
 
-            # 🚫 Stop further execution
-            raise Exception(f"Missing data field '{refined_str}' could not be extracted. Process stopped.")
+            Out_MissingData = True
+
+            return {
+                "Out_MissingData": True,
+                "out_IsBomCase": out_IsBomCase
+            }
     
     else:
         print("Entered NON-BOM case block")
