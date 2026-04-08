@@ -18,7 +18,7 @@ def Send_Finish_mail(orchestrator_connection: OrchestratorConnection) -> None:
     processed_items = data["ListOfProcessedItems"]
     failed_cases = data["ListOfFailedCases"]
     error_messages = data["ListOfErrorMessages"]
-
+    SagsbehandlerMail = orchestrator_connection.get_constant("RykkerBobEmails").value
     if processed_items:
         print("Sender email overblik over kørte sagsnumre")
 
@@ -44,7 +44,7 @@ def Send_Finish_mail(orchestrator_connection: OrchestratorConnection) -> None:
 
         # Call the send_email function
         send_email(
-            receiver=["Gujc@aarhus.dk", "louras@aarhus.dk"],
+            receiver=SagsbehandlerMail,
             sender=sender,
             subject=subject,
             body=BodyMail,
