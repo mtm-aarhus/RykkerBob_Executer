@@ -22,6 +22,7 @@ from SendSMTPMail import send_email
 import Datastore
 import json
 
+
 # pylint: disable-next=unused-argument
 def process(orchestrator_connection: OrchestratorConnection, queue_element: QueueElement | None = None) -> None:
     """Do the primary process of the robot."""
@@ -30,6 +31,7 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
     #   ---- Henter Assets ----
     KMDNovaURL = orchestrator_connection.get_constant("KMDNovaURL").value
     KMD_access_token = GetKMDToken(orchestrator_connection)
+    UdviklerMail = orchestrator_connection.get_constant("UdviklerMailRykkerBob").value
     
     # ---- Henter datastore ----
     data = Datastore.load_data()
@@ -253,7 +255,7 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
 
                     # Call the send_email function
                     send_email(
-                        receiver="Gujc@aarhus.dk",
+                        receiver=UdviklerMail,
                         sender=sender,
                         subject=subject,
                         body=body,
@@ -467,7 +469,7 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
 
                     # Call the send_email function
                     send_email(
-                        receiver="Gujc@aarhus.dk",
+                        receiver=UdviklerMail,
                         sender=sender,
                         subject=subject,
                         body=body,

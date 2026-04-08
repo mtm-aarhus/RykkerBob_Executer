@@ -22,6 +22,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: OrchestratorConnection): 
     KMDNovaLoginRykkerRobot = orchestrator_connection.get_credential("KMDNovaRobotLogin")
+    UdviklerMail = orchestrator_connection.get_constant("UdviklerMailRykkerBob").value
     RobotUserName = KMDNovaLoginRykkerRobot.username
     RobotPassword = KMDNovaLoginRykkerRobot.password
 
@@ -315,7 +316,7 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
 
             # Call the send_email function
             send_email(
-                receiver="Gujc@aarhus.dk",
+                receiver=UdviklerMail,
                 sender=sender,
                 subject=subject,
                 body=body,
@@ -762,7 +763,7 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
 
                     # Call the send_email function
                     send_email(
-                        receiver="Gujc@aarhus.dk",
+                        receiver=UdviklerMail,
                         sender=sender,
                         subject=subject,
                         body=body,

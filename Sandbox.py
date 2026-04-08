@@ -21,6 +21,7 @@ import SendDigitalPost
 orchestrator_connection = OrchestratorConnection("RykkerBob_Executer", os.getenv('OpenOrchestratorSQL'),os.getenv('OpenOrchestratorKey'), None)
 KMDNovaURL = orchestrator_connection.get_constant("KMDNovaURL").value
 KMD_access_token = GetKMDToken(orchestrator_connection)
+UdviklerMail = orchestrator_connection.get_constant("UdviklerMailRykkerBob").value
 #GetNovaCookies(orchestrator_connection)
 data = Datastore.load_data()
 
@@ -238,7 +239,7 @@ else:
 
                 # Call the send_email function
                 send_email(
-                    receiver="Gujc@aarhus.dk",
+                    receiver=UdviklerMail,
                     sender=sender,
                     subject=subject,
                     body=body,
@@ -442,7 +443,7 @@ else:
 
                 # Call the send_email function
                 send_email(
-                    receiver="Gujc@aarhus.dk",
+                    receiver=UdviklerMail,
                     sender=sender,
                     subject=subject,
                     body=body,
