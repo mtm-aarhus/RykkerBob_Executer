@@ -110,7 +110,7 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
             
     
     DocumentSendt = False
-    AarhusKommuneCVR = "551338" #55133018
+    AarhusKommuneCVR = "55133018" 
     IsCvrAarhusKommune = False
 
     # Henter yderligere sags information: 
@@ -706,9 +706,9 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
                                         checkbox.click()
 
                                     wait.until(lambda driver: not checkbox.is_selected())
-                                    time.sleep(10)   
+                                    time.sleep(2)   
 
-                                   # wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.btn-dialog-primary.test-send"))).click()
+                                    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.btn-dialog-primary.test-send"))).click()
                                 elif BoolCVR:
                                     print("CVR-nummer anvendes")
                                     actions.send_keys(Keys.DOWN).send_keys(Keys.DOWN).send_keys(Keys.ENTER).perform()
@@ -723,9 +723,9 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
                                         checkbox.click()
 
                                     wait.until(lambda driver: not checkbox.is_selected())
-                                    time.sleep(10)   
+                                    time.sleep(2)   
 
-                                    #wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.btn-dialog-primary.test-send"))).click()
+                                    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.btn-dialog-primary.test-send"))).click()
                                 else:
                                     raise Exception("Business Rule Exception: Det er hverken et CPR eller CVR nummer")
 

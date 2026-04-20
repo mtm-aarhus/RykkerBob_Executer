@@ -44,6 +44,7 @@ def GetNovaCookies(orchestrator_connection: OrchestratorConnection):
     chrome_options.add_argument("force-device-scale-factor=0.5")
     chrome_options.add_argument("--disable-extensions")
     chrome_options.add_argument("--profile-directory=Default")
+    chrome_options.add_argument("--incognito")
     #chrome_options.add_argument("--remote-debugging-port=9222")
     chrome_options.add_argument('--remote-debugging-pipe')
     driver = webdriver.Chrome(options=chrome_options)
@@ -89,5 +90,3 @@ def GetNovaCookies(orchestrator_connection: OrchestratorConnection):
     orchestrator_connection.update_credential("Kmd_verification_token", "Verification_token", out_verification_token)
     orchestrator_connection.update_credential("Kmd_logon_web_session_handler", "Logon_web_session_handler", out_kmd_logon_web_session_handler)
     orchestrator_connection.update_credential("KMD_request_verification_token", "Request_verification_token", out_request_verification_token)
-
-
