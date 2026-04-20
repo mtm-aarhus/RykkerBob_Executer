@@ -698,6 +698,16 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
                                     wait.until(EC.visibility_of_element_located((By.ID, "viewModel_NewRecipient"))).send_keys(CPR)
                                     time.sleep(3)
                                     actions.send_keys(Keys.ENTER).perform()
+                                    #Fjerner accepter svar
+                                    wait.until(EC.element_to_be_clickable((By.XPATH, "//minor-collapsible-panel-header[normalize-space()='Flere oplysninger']/ancestor::div[contains(@class, 'header')]"))).click()
+                                    time.sleep(2)
+                                    checkbox = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#model_digitalPost_AcceptReply input[type='checkbox']")))
+                                    if checkbox.is_selected():
+                                        checkbox.click()
+
+                                    wait.until(lambda driver: not checkbox.is_selected())
+                                    time.sleep(2)   
+
                                     wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.btn-dialog-primary.test-send"))).click()
                                 elif BoolCVR:
                                     print("CVR-nummer anvendes")
@@ -705,6 +715,16 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
                                     wait.until(EC.visibility_of_element_located((By.ID, "viewModel_NewRecipient"))).send_keys(CVR)
                                     time.sleep(3)
                                     actions.send_keys(Keys.ENTER).perform()
+                                    #Fjerner accepter svar
+                                    wait.until(EC.element_to_be_clickable((By.XPATH, "//minor-collapsible-panel-header[normalize-space()='Flere oplysninger']/ancestor::div[contains(@class, 'header')]"))).click()
+                                    time.sleep(2)
+                                    checkbox = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#model_digitalPost_AcceptReply input[type='checkbox']")))
+                                    if checkbox.is_selected():
+                                        checkbox.click()
+
+                                    wait.until(lambda driver: not checkbox.is_selected())
+                                    time.sleep(2)   
+
                                     wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.btn-dialog-primary.test-send"))).click()
                                 else:
                                     raise Exception("Business Rule Exception: Det er hverken et CPR eller CVR nummer")
