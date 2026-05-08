@@ -180,46 +180,42 @@ def process(orchestrator_connection: OrchestratorConnection, queue_element: Queu
             Dato = assigned_variables.get("Dato")
             StrNewDeadline = assigned_variables.get("StrNewDeadline")
 
-            if RykkerNummer == 1 or RykkerNummer == 3:
-                # ----- Run Send BomEmail -----
-                Arguments_SendBomEmail = {
-                    "in_Sagsnummer": Sagsnummer,
-                    "in_BomNumber": BomNumber,
-                    "in_BomCaseId": BomCaseId,
-                    "in_CaseAddress": CaseAddress,
-                    "in_BomCaseType": BomCaseType,
-                    "in_Kommunenummer": Kommunenummer,
-                    "in_BomCaseTypeCode": BomCaseTypeCode,
-                    "in_CadastralNumber": CadastralNumber,
-                    "in_bomCasePhaseCode": BomCasePhaseCode,
-                    "in_bomCaseStateCode": BomCaseStateCode,
-                    "in_StreetName": StreetName,
-                    "in_HouseNumber": HouseNumber,
-                    "in_Tidspunkt": Tidspunkt,
-                    "in_Dato": Dato,
-                    "in_EmailText": EmailText,
-                    "in_Title": Title
-                }
+            # ----- Run Send BomEmail -----
+            Arguments_SendBomEmail = {
+                "in_Sagsnummer": Sagsnummer,
+                "in_BomNumber": BomNumber,
+                "in_BomCaseId": BomCaseId,
+                "in_CaseAddress": CaseAddress,
+                "in_BomCaseType": BomCaseType,
+                "in_Kommunenummer": Kommunenummer,
+                "in_BomCaseTypeCode": BomCaseTypeCode,
+                "in_CadastralNumber": CadastralNumber,
+                "in_bomCasePhaseCode": BomCasePhaseCode,
+                "in_bomCaseStateCode": BomCaseStateCode,
+                "in_StreetName": StreetName,
+                "in_HouseNumber": HouseNumber,
+                "in_Tidspunkt": Tidspunkt,
+                "in_Dato": Dato,
+                "in_EmailText": EmailText,
+                "in_Title": Title
+            }
 
 
-                SendBomEmail_Output_arguments = SendBomEmail.invoke_SendBomEmail(Arguments_SendBomEmail,orchestrator_connection)
-                Text = SendBomEmail_Output_arguments.get("out_text")
-                print(Text)
+            SendBomEmail_Output_arguments = SendBomEmail.invoke_SendBomEmail(Arguments_SendBomEmail,orchestrator_connection)
+            Text = SendBomEmail_Output_arguments.get("out_text")
+            print(Text)
 
-                    # ----- Run CheckIfEmailSent -----
-                Arguments_CheckIfEmailSent = {
-                    "in_Sagsnummer": Sagsnummer,
-                    "in_Token": KMD_access_token,
-                    "in_Title": Title,
-                    "in_NovaAPIURL": KMDNovaURL,
-                    
-                }
-                CheckIfEmailSent_Output_arguments = CheckIfEmailSent.invoke_CheckIfEmailSent(Arguments_CheckIfEmailSent,orchestrator_connection)
-                out_DocumentSendt = CheckIfEmailSent_Output_arguments.get("out_DocumentSendt")
+                # ----- Run CheckIfEmailSent -----
+            Arguments_CheckIfEmailSent = {
+                "in_Sagsnummer": Sagsnummer,
+                "in_Token": KMD_access_token,
+                "in_Title": Title,
+                "in_NovaAPIURL": KMDNovaURL,
+                
+            }
+            CheckIfEmailSent_Output_arguments = CheckIfEmailSent.invoke_CheckIfEmailSent(Arguments_CheckIfEmailSent,orchestrator_connection)
+            out_DocumentSendt = CheckIfEmailSent_Output_arguments.get("out_DocumentSendt")
 
-            else:
-                # Business rule: rykker 2 sends only digital post, so workflow continues without BOM
-                out_DocumentSendt = True
 
     
             if out_DocumentSendt and (RykkerNummer == 2 or RykkerNummer == 3):
