@@ -623,7 +623,7 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
                         options.add_argument('--remote-debugging-pipe')
 
                         driver = webdriver.Chrome(options=options)
-                        wait = WebDriverWait(driver, 100)
+                        wait = WebDriverWait(driver, 80)
 
                         print("Creating WebDriver...")
                         print("Navigating to URL...")
@@ -639,6 +639,11 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
                         print("Entered Password.")
                         wait.until(EC.element_to_be_clickable((By.ID, "logonBtn"))).click()
                         print("Clicked Logon button.")
+
+
+                            # ✅ Wait for login redirect to complete before proceeding
+                        wait.until(EC.url_to_be("https://cap-awswlbs-wm3q2021.kmd.dk/KMDNovaESDH/forside"))
+                        print("Successfully logged in and redirected to forside.")
 
                         # Navigate
                         wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.btn.dropdown-toggle.object-select"))).click()
@@ -737,13 +742,16 @@ def invoke_SendDigitalPost(Arguments_SendDigitalPost,orchestrator_connection: Or
                         # Clean up
                         print("Waiting 10 seconds before closing the browser...")
                         time.sleep(10)
-                        driver.quit()
-
+                               
                     except Exception as ex:
                         print("Exception occurred:", str(ex))
                         traceback.print_exc()
+                        raise
+
+                    finally:  # ✅ Always runs — browser ALWAYS closes
+                        print("Closing browser...")
                         driver.quit()
-                        raise     
+                        print("Browser closed.")   
 
                 if BoolBeskyttet and DocumentSendt: 
                     print("Opdaterer dokumenttitlen med FORTROLIG")
